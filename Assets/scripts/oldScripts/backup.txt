@@ -1,0 +1,3 @@
+http://66.225.253.200/server/maps/
+http://75.102.25.13/
+http://maps.cs-portable.com/

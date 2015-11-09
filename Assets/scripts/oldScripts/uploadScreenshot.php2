@@ -1,0 +1,26 @@
+//<?php
+//include('inc/include.php');
+////include('inc/includeAcc.php');
+////if(isset($_GET['remove']))
+////{
+////	if(file_exists("avatars/$name.png"))
+////		unlink("avatars/$name.png");
+////}
+////else
+////{
+//$name = get("name");
+//$thefile = $_FILES['file'];
+//if(!empty($thefile))
+//{
+//	if(!file_exists("screenshots"))
+//		mkdir("screenshots");
+//	$time = time();
+//	move_uploaded_file($_FILES['file']['tmp_name'], "screenshots/$name$time.png");
+//	echo "$hostPath/screenshots/$name$time.png";
+//	
+//}
+//else
+//{
+//	echo "Failed!";
+//}
+////}

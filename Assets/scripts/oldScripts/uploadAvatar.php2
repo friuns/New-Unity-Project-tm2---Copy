@@ -1,0 +1,20 @@
+<?php
+include('inc/include.php');
+include('inc/includeAcc.php');
+if(isset($_GET['remove']))
+{
+	if(file_exists("avatars/$name.png"))
+		unlink("avatars/$name.png");
+}
+else
+{
+	$thefile = $_FILES['file'];
+	if(!empty($thefile))
+	{
+		move_uploaded_file($_FILES['file']['tmp_name'], "avatars/$name.png");
+	}
+	else
+	{
+		echo "Failed!";
+	}
+}

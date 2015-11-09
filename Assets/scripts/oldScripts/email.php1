@@ -1,0 +1,69 @@
+<?php
+
+
+//include("inc/include.php");
+
+require_once "Mail.php";
+
+
+if($_SERVER["REMOTE_ADDR"] == "127.0.0.1")
+	$link = mysql_connect('206.190.128.180:3306', 'friuns', 'er54s44');
+else
+	$link = mysql_connect('127.0.0.1:3306', 'friuns', 'er54s44');
+
+
+if(!mysql_select_db('friuns'))
+	trigger_error("wrong db");
+
+function get($var,$limit = 50000)
+{
+	if (!isset($_REQUEST[$var])) die("value not set '$var'");
+	return check($_REQUEST[$var],$limit);
+}
+function check($val,$limit)
+{
+	//if(strlen($val)>$limit)
+	$val = substr($val,0,$limit);
+	$val = mysql_real_escape_string($val);	
+	return $val;
+}
+
+
+$nick = get("nick");
+$rs = mysql_query("select * from users where name='$nick'")or die(mysql_error());
+//if(!mysql_num_rows($rs)) die("user not found with this email");
+$row = mysql_fetch_array($rs);
+if(!$row) die("user not found");
+if(!$row["email"]) die("email is empty");
+
+$from = "dorumon@mail.ru";
+$to = $row["email"];
+ $subject = "Password Recovery";
+//die($to);
+
+$body = "To Reset Password go to http://206.190.128.180/server/resetPassword.php?nick=$nick&md5=". md5($nick+"er54s43");
+ 
+$host = "smtp.mail.ru";
+ $username = "dorumon@mail.ru";
+ $password = "er54s456";
+ 
+ $headers = array ('From' => $from,
+   'To' => $to,
+   'Subject' => $subject);
+ $smtp = Mail::factory('smtp',
+   array ('host' => $host,
+     'auth' => true,
+     'username' => $username,
+     'password' => $password));
+ 
+ $mail = $smtp->send($to, $headers, $body);
+ 
+ if (PEAR::isError($mail)) {
+   echo($mail->getMessage());
+  } else {
+	echo("Email with new password sended");
+  }
+
+
+
+?>

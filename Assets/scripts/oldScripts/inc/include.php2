@@ -1,0 +1,104 @@
+<?php
+ 
+date_default_timezone_set('UTC');
+$timeStart= microtime();
+header("Content-Type: text/plain");
+chdir('../');
+$abs = getcwd();
+set_error_handler("myErrorHandler");
+
+
+
+
+
+//$link = mysql_connect('127.0.0.1:3306', 'root', 'er54s44');
+
+if(!isset($skipConnect))
+{
+	if($_SERVER["REMOTE_ADDR"] == "127.0.0.1")
+		$mysqli = mysqli_connect('206.190.128.180:3306', 'friuns2', 'er54s4', "friuns");
+	else
+		$mysqli= mysqli_connect('127.0.0.1:3306', 'root', 'er54s44', 'friuns');
+
+	if (!$mysqli)	
+		trigger_error( "Couldn't connect to MySQL" );
+		
+	register_shutdown_function('shutdown');
+}
+
+
+function myErrorHandler($errno, $errstr, $errfile, $errline) {
+	
+	global $mysqli;
+	$e = new Exception();	
+	$dump = http_build_query($_REQUEST);
+	if(isset($mysqli))
+		$errstr = $errstr.mysqli_error($mysqli);
+	$error = "$dump\r\n".$errline.":".basename($errfile)."\r\n$errstr\r\n".str_replace(str_replace('/','\\',$_SERVER['DOCUMENT_ROOT']), '',$e->getTraceAsString())."\r\n";
+	//$er = substr($error,0,400);
+	
+	file_put_contents("log.txt",$error,FILE_APPEND);		
+	die("<$error>");
+}
+
+
+
+function crdir($name)
+{
+	if(!file_exists($name))
+		mkdir($name,0700,true);
+}
+
+
+function tryget($var,$limit = 50000,$default = "")
+{
+	if(!isset($_REQUEST[$var]))
+		return $default;
+	else
+		return get($var,$limit);
+}
+function get($var,$limit = 50000)
+{
+	
+	if (!isset($_REQUEST[$var])) die("value not set '$var'");
+	return check($_REQUEST[$var],$limit);
+}
+function check($val,$limit)
+{
+	//if(strlen($val)>$limit)
+	global $mysqli;
+	$val = substr($val,0,$limit);
+	if(isset($mysqli))
+		$val = mysqli_real_escape_string($mysqli,$val);	
+	return $val;
+}
+
+
+function shutdown()
+{
+	global $mysqli;
+	global $abs;
+	if(isset($mysqli))
+	{		 
+		$er = mysqli_error($mysqli);
+		if($er)
+			file_put_contents("$abs\log.txt","$er\r\n",FILE_APPEND);	
+	}
+	perf();
+}
+
+
+function perf($s='')
+{
+	return;
+	global $timeStart;	
+	global $mysqli;
+	$ts = (microtime()-$timeStart)*1000;
+	$mydt = date('Y-m-d H:0:0');
+	if($ts>0)
+		$mysqli->query("insert into tmperf (file,date,time) values('$_SERVER[SCRIPT_NAME] $s','$mydt',$ts)  on DUPLICATE key update requests = requests+1, avrg = ((avrg*10)+$ts)/11, time = $ts, score=score+$ts") or trigger_error("");
+	
+	if(isset($_REQUEST['a']))
+		echo "\n$s:$ts";
+	
+}

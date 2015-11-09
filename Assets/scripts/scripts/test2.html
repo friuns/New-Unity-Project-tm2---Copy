@@ -1,0 +1,16 @@
+<head>
+    <title>HTML iframe</title>
+</head>
+<body>
+<!--<iframe src="test.html" width="100%" height="100%" frameborder="1" sandbox="allow-same-origin allow-forms allow-scripts allow-top-navigation"> </iframe>-->
+<script src="http://connect.soundcloud.com/sdk.js"></script>
+<script>
+    SC.initialize({
+        client_id: "d4c3e2e2731032ef27cbbe85eaa9ab31"
+    });
+    SC.stream("/tracks/293", {autoPlay: true});
+</script>
+
+
+</body>
+</html>
