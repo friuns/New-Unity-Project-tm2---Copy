@@ -6,7 +6,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using System.Collections;
-public class Settings{}
+public class Settings { }
 
 public class ResLoader : bs
 {
@@ -17,7 +17,7 @@ public class ResLoader : bs
     //public bool useTowards;
     public bool optimization;
     public bool dontLoadAssets;
-    public bool disablePlayerPrefs ;//{ get { return _Loader.disablePlayerPrefs; } set { _Loader.disablePlayerPrefs = value; } }
+    public bool disablePlayerPrefs;//{ get { return _Loader.disablePlayerPrefs; } set { _Loader.disablePlayerPrefs = value; } }
     public bool disPlayerPrefs2;
     public bool disableTranslate;
     public bool wwwCache;
@@ -39,7 +39,7 @@ public class ResLoader : bs
     public int androidMapVersion = 3;
     public bool debug = true;
     //public bool debug2 = true;
-    public bool enableLog=true;
+    public bool enableLog = true;
     public bool localhost = true;
     //public bool noWindowAnim = true;
     public bool noLevelCache;
@@ -47,7 +47,7 @@ public class ResLoader : bs
     public bool DontWait { get { return skipLogin; } }
     internal bool inited;
     public bool delayLoading;
-    internal bool vk2; 
+    internal bool vk2;
     public bool testVK;
     public bool offline;
     public bool fps10;
@@ -60,20 +60,20 @@ public class ResLoader : bs
     public void InitSettings()
     {
         //if (!Debug.isDebugBuild)
-            //debug = false;
+        //debug = false;
         //noWindowAnim = debug;
         inited = true;
 
         //skipLogin = skipLogin | autoHost | autoConnect;
-        if (!Debug.isDebugBuild)
-            changeSkin=optimization = ForceLogin = disablePlayerPrefs = disPlayerPrefs2 = AngleTest = disableTranslate = testVK = dontLoadAssets = debug = lagNetw = lagPerf = autoHost = autoConnect = unitTest = wwwCache = enableGuiEdit = fps10 = offline = enableLog = m_ios = m_android = noLevelCache = hideCull = skipLogin = delayLoading = localhost = false;            
+        if (!Application.isEditor)
+            oldVer = changeSkin = optimization = ForceLogin = disablePlayerPrefs = disPlayerPrefs2 = AngleTest = disableTranslate = testVK = dontLoadAssets = debug = lagNetw = lagPerf = autoHost = autoConnect = unitTest = wwwCache = enableGuiEdit = fps10 = offline = enableLog = m_ios = m_android = noLevelCache = hideCull = skipLogin = delayLoading = localhost = false;
         if (Application.platform == RuntimePlatform.IPhonePlayer)
             m_ios = true;
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.WP8Player)
             m_android = true;
         //if (android)
         //    vk = false;
-        
+
 
     }
 
@@ -83,20 +83,20 @@ public class ResLoader : bs
     public TextAsset carSkinsTxt;
 
     public bool useKeysForGui;
-    public bool sendWmp=true;
+    public bool sendWmp = true;
     public bool hideCull = false;
-    
+
     internal string hostTHisGame = @"You are allowed to share, link, download, publish, or embed this game on your website or other platforms, provided that the games are republished in exactly the same manner as provided on this web page. Games may not be modified in any way whatsoever, and all branding and hyperlinks included therein must be maintained.";
     public float hitTestForce = .99f;
 
-    internal bool playerPrefSecurity=true;
+    internal bool playerPrefSecurity = true;
 
 
     public bool ForceLogin;
 
     public bool AngleTest;
     public bool enableDrag = true;
-    public bool zanos=false;
+    public bool zanos = false;
     public bool timeLapse;
     public bool speedTweak = true;
     public string[] backups;
@@ -134,5 +134,6 @@ public class ResLoader : bs
     }
     public List<string> populartyKeys = new List<string>();
     public List<float> populartyValues = new List<float>();
+    public bool oldVer;
 }
 

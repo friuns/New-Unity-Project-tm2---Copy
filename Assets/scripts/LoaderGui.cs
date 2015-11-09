@@ -22,9 +22,9 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using gui = UnityEngine.GUILayout;
 
-public partial class Loader 
+public partial class Loader
 {
-    
+
     public void WindowPool()
     {
         StartCoroutine(WindowPoolCor());
@@ -76,7 +76,7 @@ public partial class Loader
         }
     }
 
-    
+
 
     public void QuitWindow() { }
     public void CloseWindow()
@@ -138,13 +138,13 @@ public partial class Loader
         Setup(700, 300);
         win.addflexibleSpace = false;
         GUILayout.TextArea("Translate txt file here https://www.dropbox.com/sh/jhz61bchvbu1bd1/Amn12QIjrZ and send me to soulkey4@gmail.com, Thanks!", gui.ExpandHeight(true));
-        
+
         //BeginScrollView();
         //skin.textArea.richText = false;
         //GUILayout.TextArea(setting.assetDictionaries[1].text);
         //GUILayout.EndScrollView();
     }
-    
+
     private string PasswordField(string txt, char c)
     {
         var down = JoystickButton2(skin.textField);
@@ -164,7 +164,7 @@ public partial class Loader
             GUI.FocusControl(s);
             //TouchScreenKeyboard.Open(txt);
         }
-        GUI.SetNextControlName(s);        
+        GUI.SetNextControlName(s);
         return GUILayout.TextField(txt, i);
     }
     internal void LoginWindow()
@@ -196,33 +196,34 @@ public partial class Loader
             GUILayout.BeginHorizontal();
             if (Button("Register"))
                 win.ShowWindow(RegisterWindow, LoginWindow);
-        }else
+        }
+        else
             gui.BeginHorizontal();
         if (Button(_Loader.vk ? "ОК" : "Login"))
         {
             SaveStrings();
-            if(vk && !_Integration.vkLoggedIn)
+            if (vk && !_Integration.vkLoggedIn)
                 GoOffline();
             else if (CheckLength())
             {
                 Popup2("Logging in");
-                Download(mainSite + "scripts/" + (_Loader.vk ? "loginRegister2.php" : "login3.php"), delegate(string text, bool success)
+                Download(mainSite + "scripts/" + (_Loader.vk ? "loginRegister2.php" : "login3.php"), delegate (string text, bool success)
                 {
                     if (text.StartsWith("registered") || text.StartsWith("login success") || setting.ForceLogin)
                         StartCoroutine(LoadPlayerPrefs(text));
                     else //if (text.StartsWith("wrong password") || text.StartsWith("user not exists") || text.StartsWith("user already registered"))
-                    //{
+                         //{
                         OnLoginFailed(text);
-                        //Popup2(text, LoginWindow);
+                    //Popup2(text, LoginWindow);
                     //}
                     //else
                     //{
                     //    GoOffline();
                     //}
-                }, false, "name", playerName, "password", password, "vkPassword", vkPassword,"deviceId",SystemInfo.deviceUniqueIdentifier 
-//#if UNITY_EDITOR
-//                ,"a",1
-//#endif
+                }, false, "name", playerName, "password", password, "vkPassword", vkPassword, "deviceId", SystemInfo.deviceUniqueIdentifier
+                //#if UNITY_EDITOR
+                //                ,"a",1
+                //#endif
                 );
             }
         }
@@ -251,20 +252,20 @@ public partial class Loader
 
 
     private string showPass;
-    
+
     private void RestorePasswordWindow()
-    {        
+    {
         Label("Enter your email");
         email = TextField(email.ToLower());
-        if(Button("Send Password"))
-            Download(mainSite + "/emails/" + GetMD5Hash(email) + ".txt", delegate(string s, bool b) { if (b) showPass = s; else  Popup2("Email not found", win.act); }, false);
+        if (Button("Send Password"))
+            Download(mainSite + "/emails/" + GetMD5Hash(email) + ".txt", delegate (string s, bool b) { if (b) showPass = s; else Popup2("Email not found", win.act); }, false);
         if (showPass != null)
             gui.TextField(Tr("Your password:") + showPass);
     }
-    private string email="";
+    private string email = "";
     private void RegisterWindow()
     {
-        
+
         win.Setup(400, 400);
         Label("Name:");
         playerName = Filter(TextField(playerName, maxLength));
@@ -280,24 +281,24 @@ public partial class Loader
         if (Button("Register"))
         {
             if (!Debug.isDebugBuild && !Regex.IsMatch(email, @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", RegexOptions.IgnoreCase))
-                Popup2("Please enter valid email address, required for password recovery",win.act);
+                Popup2("Please enter valid email address, required for password recovery", win.act);
             else if (confirmPassword != password)
                 Popup2("Passwords not match", win.act);
             else if (CheckLength())
             {
                 Popup2("Registering", RegisterWindow);
-                Download(mainSite +  "scripts/register.php", delegate(string text, bool success)
-                {
-                    if (text.StartsWith("registration success"))
-                    {
-                        StartCoroutine(LoadPlayerPrefs(text));
+                Download(mainSite + "scripts/register.php", delegate (string text, bool success)
+               {
+                   if (text.StartsWith("registration success"))
+                   {
+                       StartCoroutine(LoadPlayerPrefs(text));
                         //statsSaved = true;
                         //OnLoggedIn();
                         //WindowPool();
                     }
-                    else
-                        Popup2(text, RegisterWindow);
-                }, false, "name", playerName, "password", password, "email", email);
+                   else
+                       Popup2(text, RegisterWindow);
+               }, false, "name", playerName, "password", password, "email", email);
             }
         }
         GUILayout.EndHorizontal();
@@ -335,18 +336,18 @@ public partial class Loader
     {
         if (!PhotonNetwork.isMessageQueueRunning)
             PhotonNetwork.isMessageQueueRunning = true;
-        
+
         win.Setup(400, 550, "", Dock.Left, null, null);
         win.style = skin.label;
         replacementStyle = res.menuButton;
 
         gui.BeginHorizontal();
-        if(GUILayout.Button(Avatar, _Loader.guiSkins.ramka, GUILayout.Width(64), GUILayout.Height(64), gui.ExpandWidth(false)))
+        if (GUILayout.Button(Avatar, _Loader.guiSkins.ramka, GUILayout.Width(64), GUILayout.Height(64), gui.ExpandWidth(false)))
             ShowWindow(_Loader.SelectAvatar, win.act);
         var r = GUILayoutUtility.GetLastRect();
         var c = r.center;
         r.width = res.ramka.width;
-        r.height= res.ramka.height;
+        r.height = res.ramka.height;
         r.center = c;
         GUI.DrawTexture(r, res.ramka);
 
@@ -357,17 +358,17 @@ public partial class Loader
 
         gui.Label(Tr(" Welcome ") + Tr(playerNamePrefixed, false, false), res.labelGlow);
         gui.EndHorizontal();
-        
-        
-            gui.Space(30);
+
+
+        gui.Space(30);
         if (Button("Start Online Race"))
         {
             sGameType = SGameType.VsPlayers;
             ShowWindowNoBack(SelectMapWindow);
         }
-        
+
         //if(assetsLoaded)
-        if (Button("Multiplayer (beta)") || setting.autoConnect||setting.autoHost)
+        if (Button("Multiplayer (beta)") || setting.autoConnect || setting.autoHost)
         {
             if (mh)
                 Popup("hack detected, you have been banned");
@@ -382,7 +383,7 @@ public partial class Loader
         //        Popup("Please register first",MenuWindow);
         //    else
         //        ShowWindow(SearchClanWindow, MenuWindow);
-        
+
         //if (Button("Play Vs Friends"))
         //{
         //    sGameType = SGameType.VsFriends;
@@ -394,15 +395,15 @@ public partial class Loader
             ShowWindowNoBack(SelectMapWindow);
         }
 
-        
+
         if (resLoaded && Button("Select Car"))
             LoadLevel(Levels.carSelect);
         if (Button("Settings"))
             ShowWindow(SettingsWindow, MenuWindow);
         if (resLoaded && Button("Level Editor"))
             Application.LoadLevel(Levels.levelEditor);
-        
-        
+
+
         //if (Button("LogOut"))
         //{
         //    ResetSettings();
@@ -425,8 +426,8 @@ public partial class Loader
         {
             ExternalEval("VK.callMethod('showInviteBox')");
         }
-        if(isDebug && Button("Edit"))
-            ShowWindow(EditValuesWindow,win.act);
+        if (isDebug && Button("Edit"))
+            ShowWindow(EditValuesWindow, win.act);
         if (isDebug)
             Label(Trs("Version: ") + setting.version);
         if (!resLoaded)
@@ -464,11 +465,11 @@ public partial class Loader
 
     internal bool resLoaded2;
     //{
-        //get { return wwwAssetBundle != null && wwwAssetBundle.isDone; }
+    //get { return wwwAssetBundle != null && wwwAssetBundle.isDone; }
     //}
     internal bool resLoaded;
     //{
-        //get { return wwwAssetBundle == null || wwwAssetBundle.isDone; }
+    //get { return wwwAssetBundle == null || wwwAssetBundle.isDone; }
     //}
 
     public void SetOffline(bool offline)
@@ -481,7 +482,7 @@ public partial class Loader
         if (offlineMode != offline)
         {
             offlineMode = offline;
-            print("Set Offline "+offline);
+            print("Set Offline " + offline);
             //if (offline && PhotonNetwork.room == null)
             //    PhotonNetwork.CreateRoom("test");
         }
@@ -504,11 +505,11 @@ public partial class Loader
                 ConnectToPhoton();
         }));
     }
-    
-    
+
+
     public void ConnectToPhoton()
     {
-        PhotonNetwork.Connect("app-eu.exitgamescloud.com", 5055, setting.appIds[appId], "tm" + 840);
+        PhotonNetwork.Connect("app-eu.exitgamescloud.com", 5055, setting.appIds[appId], "tm" + (setting.oldVer ? 840 : 841));
     }
 
     private int appId;
@@ -585,23 +586,23 @@ public partial class Loader
     }
 #endif
     ChatPhp _ChatPhp = new ChatPhp();
-    
+
     public void MapSelectWindow() { }
     internal int tabSelected;
     WWW wwwUserMaps;
 
     //public bool advancedOnly;
-    
+
     public void SelectMapWindow()
     {
 
         win.Setup(900, 600, Tr(sGameType.ToString()));
-        LabelCenter("Choose map",16,false);
+        LabelCenter("Choose map", 16, false);
 
         //int sceneCount = SceneCount;
         tabSelected = Mod(tabSelected, titles.Length);
         bool userTab = tabSelected == Tag.userTab;
-        
+
         DrawTab();
         if (userTab && !resLoaded)
         {
@@ -613,8 +614,8 @@ public partial class Loader
         //string[] tabnames = new string[(sceneCount / 8)+1];
         //for (int i = 0; i < tabnames.Length; i++)
         //    tabnames[i] = Tr("Stage ") + i;
-        
-        
+
+
         BeginScrollView(win.skin.box, !android);
 
 
@@ -647,15 +648,15 @@ public partial class Loader
             gui.EndHorizontal();
             //if (isMod)
 
-                //advancedOnly = Toggle(advancedOnly, "Advanced only");
-            
+            //advancedOnly = Toggle(advancedOnly, "Advanced only");
+
             GUI.enabled = true;
         }
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         //List<string> mapby = new List<string>();
-        for (int i = 0,j=0; i < scenes.Count; i++)
+        for (int i = 0, j = 0; i < scenes.Count; i++)
         {
             Scene scene = scenes[i];
 
@@ -671,16 +672,16 @@ public partial class Loader
             //}
             var loading = !scene.loaded && !scene.userMap; //!maps.ContainsKey(scene.name.ToLower()) && !CanStreamedLevelBeLoaded(scene.name) || !CanStreamedLevelBeLoaded(Levels.game);
             var bonus = (i + DateTime.Now.Day) % 10 == 0;
-            bool unlocked = medals >= need || bonus || scene.userMap||i==0||isDebug;
+            bool unlocked = medals >= need || bonus || scene.userMap || i == 0 || isDebug;
 
             if (Time.time - levelLoadTime < 1.5f && medals >= need && medals - wonMedals < need)
                 unlocked = Time.time % .4f < .2f;
             GUI.enabled = !loading && unlocked;
             //if (!unlocked) continue;
-            
+
             GUILayout.Space(15);
-            GUILayout.BeginVertical(userTab ? skin.box: GUIStyle.none);
-            
+            GUILayout.BeginVertical(userTab ? skin.box : GUIStyle.none);
+
             prefixMapPl = (scene.name + ";" + _Loader.playerName + ";");
             GUILayout.Label(GUIContent(record == float.MaxValue ? null : TimeToStr(record), place == 4 ? null : win.medals[place]), GUILayout.Height(20), GUILayout.Width(100));
             skin.button.wordWrap = true;
@@ -688,7 +689,7 @@ public partial class Loader
                 : JoystickButton2(res.mapSelectButton) || SoundButton(GUILayout.Button(GUIContent(unlocked ? scene.texture : win.locked, string.Format(Tr("You need {0} medals to unlock"), Mathf.Max(0, need))), res.mapSelectButton, GUILayout.Height(100), GUILayout.Width(100)))
                 || setting.autoHost && i == 0;
 
-            if (userTab && scene.rating!=0)
+            if (userTab && scene.rating != 0)
                 gui.Label(res.rating[Mathf.RoundToInt(scene.rating * 2)]);
             if (buttonPressed)
                 OnMapSelected(scene);
@@ -699,7 +700,7 @@ public partial class Loader
             }
             else
                 gui.Label(scene.title, gui.Width(100));
-            
+
             GUILayout.EndVertical();
 
             if ((++j) % 5 == 0 && j != 0)
@@ -712,15 +713,15 @@ public partial class Loader
 
 
         }
-        
+
         GUI.enabled = true;
         GUILayout.FlexibleSpace();
 
         GUILayout.EndHorizontal();
         GUILayout.FlexibleSpace();
-        
+
         GUILayout.EndScrollView();
-        
+
         DrawMedals();
 
     }
@@ -780,12 +781,12 @@ public partial class Loader
     }
     private void ResetServerSettings()
     {
-        
+
         airFactor = 0;
         rotationFactor = 1;
         ctfRandomSpawn = false;
         matchTimeLimit = 0;
-        night = bombCar = rain = enableCollision = false;        
+        night = bombCar = rain = enableCollision = false;
         mapSets.levelFlags = LevelFlags.race;
         enableMatchTime = false;
         enableZombies = enableCollision = pursuit;
@@ -812,7 +813,7 @@ public partial class Loader
 
     public void DownloadUserMaps2(int page)
     {
-        
+
         StartCoroutine(DownloadUserMaps(topMaps == TopMaps.Staff_Pick ? 2 : 1, (int)mapSets.levelFlags, "", page, topMaps == TopMaps.Top));
     }
     private void DrawTab()
@@ -822,8 +823,8 @@ public partial class Loader
         if (JoystickButton2(skin.button) || SoundButton(gui.Button("<", gui.ExpandHeight(true), gui.Width(100))))
             tabSelected--;
         GUILayout.FlexibleSpace();
-        tabSelected = Toolbar(tabSelected, titles, false,false);
-        GUILayout.FlexibleSpace();                
+        tabSelected = Toolbar(tabSelected, titles, false, false);
+        GUILayout.FlexibleSpace();
         if (JoystickButton2(skin.button) || SoundButton(gui.Button(">", gui.ExpandHeight(true), gui.Width(100))))
             tabSelected++;
 
@@ -856,7 +857,7 @@ public partial class Loader
         if (ButtonLeft("Search") && searchMap.Length > 2)
         {
             StartCoroutine(DownloadUserMaps(0, (int)mapSets.levelFlags, searchMap));
-            tabSelected = Tag.userTab; 
+            tabSelected = Tag.userTab;
             ShowWindowNoBack(SelectMapWindow);
         }
         StringBuilder sb = new StringBuilder();
@@ -865,7 +866,7 @@ public partial class Loader
         {
             foreach (var a in favorites)
                 sb.Append(a + ",");
-            Label("Your Favorites: " + sb,16,true);
+            Label("Your Favorites: " + sb, 16, true);
         }
     }
     private string searchMap = "";
@@ -896,7 +897,7 @@ public partial class Loader
         Setup(600, 350);
         gui.Label(res.sendReplayIcon);
         LabelCenter("Send this link to friend so he can play vs you", 16, true);
-        gui.TextArea(_Loader.replayLinkPrefix + _Loader.replayLink);        
+        gui.TextArea(_Loader.replayLinkPrefix + _Loader.replayLink);
     }
 
     protected void PlayVsPlayersWindow()
@@ -930,10 +931,10 @@ public partial class Loader
         GUILayout.BeginHorizontal();
         //gameType = Toggle(gameType == GameType.zombies, "Zombies") ? GameType.zombies : GameType.race;
         //if (resLoaded)
-            //_Loader.enableZombies = Toggle(enableZombies, "Zombies"); 
+        //_Loader.enableZombies = Toggle(enableZombies, "Zombies"); 
         _Loader.rain = Toggle(rain, "Rain");
         _Loader.night = Toggle(night, "Night");
-        
+
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
         _Loader.enableCollision = Toggle(enableCollision, "Collision");
@@ -945,10 +946,10 @@ public partial class Loader
     }
     internal string scoreBoard;
 
-    
+
 
     private bool hideChat;
-    public void LoadScoreBOard(bool hideChat=false)
+    public void LoadScoreBOard(bool hideChat = false)
     {
         this.hideChat = hideChat;
         if (online)
@@ -976,7 +977,7 @@ public partial class Loader
         {
             var pp = a.Key.ToString().Split(':');
             if (pp[0] == ServerProps.score2)
-                parsed.Add(new ServerScore() {nick = pp[1], value = (float) a.Value});
+                parsed.Add(new ServerScore() { nick = pp[1], value = (float)a.Value });
         }
         foreach (var a in parsed.OrderBy(a => _Loader.dm ? -a.value : a.value))
         {
@@ -989,7 +990,7 @@ public partial class Loader
         Setup(800, 500);
         win.showBackButton = false;
         win.addflexibleSpace = false;
-        
+
 
         LabelCenter(Trs("Map ") + _Loader.mapName);
         gui.BeginHorizontal();
@@ -1060,7 +1061,7 @@ public partial class Loader
                         i++;
                     }
                 }
-                scoreBoard += string.Format(t, i + 1, sa[0], TimeToStr(tm,false, _Loader.dmOrCoins), retries) + "\n";
+                scoreBoard += string.Format(t, i + 1, sa[0], TimeToStr(tm, false, _Loader.dmOrCoins), retries) + "\n";
             }
             if (place != -1)
                 scoreBoard = "Your Place is " + place + "\n" + scoreBoard;
@@ -1225,7 +1226,7 @@ public partial class Loader
         {
             Replay a = tempReplays[i];
             GUILayout.BeginVertical();
-            GUILayout.Label(res.GetAvatar(a.avatarId,a.avatarUrl));
+            GUILayout.Label(res.GetAvatar(a.avatarId, a.avatarUrl));
             Label(Trn(a.playerName));
             GUILayout.EndVertical();
         }
@@ -1240,14 +1241,14 @@ public partial class Loader
         }
     }
     internal bool advancedOptions;
-    
+
     public void SettingsWindow()
-    {        
-        win.Setup(500, 500,"Settings");
+    {
+        win.Setup(500, 500, "Settings");
         BeginScrollView();
         gui.Label(Tr("version:") + LoadingScreen.version + " updated:" + setting.versionDate);
         if (!setting.vk2)
-        advancedOptions = Toggle(advancedOptions, "Advanced settings");
+            advancedOptions = Toggle(advancedOptions, "Advanced settings");
         if (!android && Button("FullScreen"))
             FullScreen(true);
         var toggle = Toggle(_Loader.rearCamera, "Rear Camera");
@@ -1267,7 +1268,7 @@ public partial class Loader
         if (android && advancedOptions)
             _Loader.scaleButtons = Toggle(_Loader.scaleButtons, "Scale buttons");
 
-        
+
 
         if (!android)
         {
@@ -1278,11 +1279,11 @@ public partial class Loader
                 if (advancedOptions)
                     Application.runInBackground = Toggle(Application.runInBackground, "Run In Background");
             }
-            if (Button("Keyboard",false))
+            if (Button("Keyboard", false))
                 ShowWindow(KeyboardSetup, SettingsWindow);
         }
-        
-        if (Button("Language",false))
+
+        if (Button("Language", false))
             win.ShowWindow(SelectLangWindow, win.act);
         //if (!_Game)
         //{
@@ -1291,7 +1292,7 @@ public partial class Loader
         //}
         //if (enableMouse)
         //{
-        
+
         //}
         if (android)
         {
@@ -1313,7 +1314,7 @@ public partial class Loader
         gui.BeginHorizontal();
         //if (_music.aus.Count > 0 || musicVolume == 0)
         musicVolume = HorizontalSlider("music volume", musicVolume, 0, 1);
-     
+
         //}
         _Loader.voiceChatVolume = HorizontalSlider("Voice Chat Volume", _Loader.voiceChatVolume, 0, 1);
         gui.EndHorizontal();
@@ -1340,14 +1341,14 @@ public partial class Loader
             _Game.customTime = GUILayout.HorizontalSlider(_Game.customTime, .5f, 1);
         }
 
-        if ((android||androidPlatform) && advancedOptions)
-        {            
+        if ((android || androidPlatform) && advancedOptions)
+        {
             if (_Game == null)
                 reverseSplitScreen = Toggle(reverseSplitScreen, "Reverse SplitScreen");
             setting.m_android = Toggle(android, "Mobile/Touch Screen");
         }
         //if (advancedOptions && isDebug)
-            //setting.useKeysForGui = Toggle(setting.useKeysForGui, "Control GUI using Keys (buggy)");
+        //setting.useKeysForGui = Toggle(setting.useKeysForGui, "Control GUI using Keys (buggy)");
 
         if (advancedOptions)
         {
@@ -1367,14 +1368,14 @@ public partial class Loader
                 consoleTxt = log.Append("\nerrors count:" + errors).ToString();
                 ShowWindow(ConsoleWindow, win.act);
             }
-            if (Input.GetKey(KeyCode.LeftShift) || Application.isEditor || setting.debug)
+            if (Application.isEditor || setting.debug)
                 setting.debug = gui.Toggle(setting.debug, "Debug");
             else
                 gui.Label("");
 
         }
         //if (_Integration.loggedIn)
-            //postFeedBack = Toggle(postFeedBack, "Post Facebook Feed");
+        //postFeedBack = Toggle(postFeedBack, "Post Facebook Feed");
         if (isDebug)
         {
             setting.enableLog = Toggle(setting.enableLog, "Enable Log");
@@ -1390,17 +1391,17 @@ public partial class Loader
     {
         Setup(600, 600);
         win.addflexibleSpace = false;
-        gui.TextArea(res.credits);    
+        gui.TextArea(res.credits);
     }
-    
-    
+
+
 
 
     string consoleTxt = "";
     Vector2 consoleScroll = new Vector2(0, MaxValue);
     public void ConsoleWindow()
     {
-        Setup(1000,1000);
+        Setup(1000, 1000);
         Label("Press ctrl+c to copy");
         consoleScroll = gui.BeginScrollView(consoleScroll);
         gui.TextField(consoleTxt);
@@ -1410,7 +1411,7 @@ public partial class Loader
     }
     public static void SelectAll(int len)
     {
-        TextEditor te = (TextEditor) GUIUtility.GetStateObject(typeof (TextEditor), GUIUtility.keyboardControl);
+        TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
         te.pos = 0; //set cursor position
         te.selectPos = len; //se
     }
@@ -1474,9 +1475,9 @@ public partial class Loader
     //}
     public void SelectAvatar()
     {
-        win.Setup(600, 300, "Select Character");        
+        win.Setup(600, 300, "Select Character");
         win.showBackButton = false;
-        BeginScrollView(null,true);
+        BeginScrollView(null, true);
         GUILayout.FlexibleSpace();
         GUILayout.BeginHorizontal();
         //if(!string.IsNullOrEmpty(avatarUrl))
@@ -1487,10 +1488,10 @@ public partial class Loader
             var i2 = res.avatars.Length - (_Awards.ranks.Length - 2);
             GUI.enabled = i < i2 + _Awards.xp.level;
 
-            if (gui.Button(new GUIContent(null, res.GetAvatar(i, avatarUrl), GUI.enabled ? "" : string.Format("You need level {0}, your level is {1}", (i - i2)+1, _Awards.xp.level))) || Input.GetKeyDown(KeyCode.Escape))
+            if (gui.Button(new GUIContent(null, res.GetAvatar(i, avatarUrl), GUI.enabled ? "" : string.Format("You need level {0}, your level is {1}", (i - i2) + 1, _Awards.xp.level))) || Input.GetKeyDown(KeyCode.Escape))
             {
                 avatar = i;
-                if(_CarSelectMenu!=null)
+                if (_CarSelectMenu != null)
                     ShowWindowNoBack(_CarSelectMenu.Window);
                 else
                     WindowPool();
@@ -1499,7 +1500,7 @@ public partial class Loader
         }
         GUI.enabled = true;
         GUILayout.EndHorizontal();
-        
+
         GUILayout.FlexibleSpace();
         GUILayout.EndScrollView();
         Label(win.tooltip);
