@@ -25,9 +25,9 @@ public partial class LevelEditor : MapLoader
     public Transform cursor;
     private Vector3 cursorPos { get { return cursor.position; } }
     public static bool scriptRefresh;
-    string[] toolStrs = new string[] { null, null, "Height", "Move", "Rotate", "Scale", "Insert" , "CheckPoint", "StartPoint", "Brush", null, null, "Cam. Rot", null, "Models" };
-    string[] toolStrsAndroid = new string[] { null , "Erase", "Height", "Move", "Rotate", "Scale", null , "CheckPoint", "StartPoint", "Brush", "Insert", "Cam.Move", "Cam.Rot", "Cam.Zoom" };
-    string[] toolStrsShape = new string[] { null, null, null, "Move", null, null, "Insert" , null, null, null, null, "Cam.Move", null, "cam zoom" };
+    string[] toolStrs = new string[] { null, null, "Height", "Move", "Rotate", "Scale", "Insert", "CheckPoint", "StartPoint", "Brush", null, null, "Cam. Rot", null, "Models" };
+    string[] toolStrsAndroid = new string[] { null, "Erase", "Height", "Move", "Rotate", "Scale", null, "CheckPoint", "StartPoint", "Brush", "Insert", "Cam.Move", "Cam.Rot", "Cam.Zoom" };
+    string[] toolStrsShape = new string[] { null, null, null, "Move", null, null, "Insert", null, null, null, null, "Cam.Move", null, "cam zoom" };
     private bool transparent;
     public enum Tool { Draw, Erase, Height, Move, Rotate, Scale, Insert, CheckPoint, StartPoint, Brush, BrushErase, CameraMove, CameraRotate, CameraZoom, Models }
     internal Tool tool = Tool.Height;
@@ -66,11 +66,11 @@ public partial class LevelEditor : MapLoader
         get
         {
             return //android ? tool == Tool.Draw :
-                tool != Tool.Erase && tool != Tool.CheckPoint && tool != Tool.StartPoint && tool != Tool.Insert && tool != Tool.BrushErase && tool != Tool.CameraMove && tool != Tool.CameraRotate && tool != Tool.CameraZoom && tool != Tool.Brush && !Input.GetKey(KeyCode.LeftShift) && tool != Tool.Models 
+                tool != Tool.Erase && tool != Tool.CheckPoint && tool != Tool.StartPoint && tool != Tool.Insert && tool != Tool.BrushErase && tool != Tool.CameraMove && tool != Tool.CameraRotate && tool != Tool.CameraZoom && tool != Tool.Brush && !Input.GetKey(KeyCode.LeftShift) && tool != Tool.Models
                 && (drawRoad);
         }
     }
-    
+
     public new void Start()
     {
         LogEvent(EventGroup.LevelEditor, "Open Level editor");
@@ -89,10 +89,10 @@ public partial class LevelEditor : MapLoader
         print("Editor Start");
         camera = base.camera;
         _Loader.levelEditor = this;
-        
+
         LoadTranslate();
 
-        if(tutorialPopup && !android)
+        if (tutorialPopup && !android)
             ShowWindowNoBack(TutorialPopup);
         else
             ShowWindowNoBack(OnEditorWindow);
@@ -101,30 +101,28 @@ public partial class LevelEditor : MapLoader
         if (loadMap != null)
             StartLoadMap();
         if (unityMap != null)
-            StartCoroutine(LoadTestMap2());
+            StartCoroutine(LoadUnityMap());
         _Loader.guiText.anchor = TextAnchor.LowerRight;
         _Loader.guiText.transform.position = new Vector3(1, 0, 0);
         base.Start();
     }
 
-    private IEnumerator LoadTestMap2()
+    private IEnumerator LoadUnityMap()
     {
         LogEvent(EventGroup.LevelEditor, "Test Map");
         hideTerrain = true;
         yield return StartCoroutine(LoadUnityMap(unityMap));
-        
         ResetCam();
     }
-
     public void TutorialPopup()
     {
-        win.Setup(400,200 , "Tutorials", Dock.Center);
+        win.Setup(400, 200, "Tutorials", Dock.Center);
         Label("Check out video tutorials on Youtube");
         VideoYoutube();
         gui.FlexibleSpace();
         gui.BeginHorizontal();
         tutorialPopup = !gui.Toggle(!tutorialPopup, "don't show me this again");
-        if(Button("Continue"))
+        if (Button("Continue"))
             ShowEditorWindow();
         gui.EndHorizontal();
 
@@ -185,7 +183,6 @@ public partial class LevelEditor : MapLoader
     {
         if (start != null)
             DestroyImmediate(start.gameObject);
-        unityMap = null;
         foreach (CurvySpline2 a in splines.ToArray())
             if (!a.shape)
                 DestroyImmediate(a.gameObject);
@@ -210,7 +207,7 @@ public partial class LevelEditor : MapLoader
         cursor.position = b.center + Vector3.up * 50;
     }
 
-    
+
     internal bool hitTest;
     internal CurvySplineSegment hitTestSegment;
     private void DrawLine(Vector3 a, Vector3 b)
@@ -257,14 +254,14 @@ public partial class LevelEditor : MapLoader
         if (Input.GetKeyDown(KeyCode.R) && isDebug)
             Application.LoadLevel(Application.loadedLevelName);
         mouseButton1 = !android && Input.GetMouseButton(1);
-        mouseButtonDown0 = Input.GetMouseButtonDown(0) ;
+        mouseButtonDown0 = Input.GetMouseButtonDown(0);
         mouseButtonDown1 = !android && Input.GetMouseButtonDown(1);
-        mouseButtonDown2 = !android && Input.GetMouseButtonDown(2);        
+        mouseButtonDown2 = !android && Input.GetMouseButtonDown(2);
         mouseButtonAny = mouseButton0 || mouseButton1 || mouseButton2;
         mouseButtonDownAny = mouseButtonDown0 || mouseButtonDown1 || mouseButtonDown2;
         mouseButtonUp0 = Input.GetMouseButtonUp(0);
         mouseButtonUp1 = !android && Input.GetMouseButtonUp(1) || mouseButtonUp0 && tool == Tool.Erase;
-        
+
         mouseButtonUpAny = Input.GetMouseButtonUp(0);
         mouseButton0 = Input.GetMouseButton(0) || Input.GetMouseButtonUp(0);
 
@@ -293,7 +290,7 @@ public partial class LevelEditor : MapLoader
             onHeight = tool == Tool.Height;
         }
         mouseScroll = Input.GetAxis("Mouse ScrollWheel");
-        
+
         //mouseDelta = mouseButtonAny ? new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) : Vector2.zero;
         mouseDelta = getMouseDelta();
 
@@ -317,15 +314,15 @@ public partial class LevelEditor : MapLoader
                 UpdateTerrain(null, false, false, lastSgo);
             else
                 UpdateTerrain(segment.IsValidSegment ? segment : segment.PreviousControlPoint, affectPrev || affectNext);
-        
+
 
         if (!mouseButton0)
             windowHit = false;
 
-        if (!android ||mouseButtonDown0 || mouseButtonUp0 )
+        if (!android || mouseButtonDown0 || mouseButtonUp0)
             if (Input.mousePosition.y > Screen.height - 23 * win.scale.y || win.WindowHit)
                 windowHit = true;
-        
+
     }
     private void UpdateMove()
     {
@@ -344,9 +341,9 @@ public partial class LevelEditor : MapLoader
         move = Quaternion.LookRotation(ZeroY(!shapeEditor ? transform.forward : Vector3.forward)) * move * (shapeEditor ? .3f : 1);
         //move = camera.projectionMatrix.MultiplyVector(move);
         if (shapeEditor)
-            move = new Vector3(-move.x, 0,move.z);
+            move = new Vector3(-move.x, 0, move.z);
         if (move != Vector3.zero)
-            pos += move;        
+            pos += move;
     }
 
     private float scaleFactor
@@ -355,7 +352,6 @@ public partial class LevelEditor : MapLoader
     }
     Vector3 dragStart;
     Vector3 dragMove;
-    Transform checkPointDrag;
     Vector3 oldCursorPos;
     public void UpdateCheckPoint()
     {
@@ -377,39 +373,20 @@ public partial class LevelEditor : MapLoader
                 dragStart = np.point;
                 oldCursorPos = cursor.position = dragStart;
                 var forward = (np.NextControlPoint.Position - np.Position).normalized;
-                dragMove = forward*10;
+                dragMove = forward * 10;
                 if (tool == Tool.CheckPoint)
-                {
-                    checkPointDrag = null;
                     SetCheckPoint(np.point).forward = forward;
-                }
                 if (tool == Tool.StartPoint)
-                {
                     SetStartPoint(np.point + Vector3.up, forward);
-                }
             }
             else if (Physics.Raycast(camera.ScreenPointToRay(mpos), out h, 10000, Layer.levelMask))
             {
                 if (mouseButtonDown0)
-                {
                     dragStart = h.point;
-                    //if (tool == Tool.CheckPoint)
-                    //    checkPointDrag = SetCheckPoint(dragStart + Vector3.up);
-                }
 
                 if (mouseButton0 && dragStart != Vector3.zero)
-                {
                     if (tool == Tool.StartPoint)
                         SetStartPoint(dragStart + Vector3.up, dragMove);
-
-                    //if (tool == Tool.CheckPoint && checkPointDrag != null)
-                    //{
-                    //    checkPointDrag.up = h.normal;
-                    //    checkPointDrag.forward = dragStart - h.point;
-                    //}
-                }
-
-
             }
         }
     }
@@ -429,7 +406,7 @@ public partial class LevelEditor : MapLoader
                 a.Refresh();
         scriptRefresh = true;
 
-        
+
         if (KeyDebug(KeyCode.Alpha1, "break"))
             Debug.Break();
         var segments = splines.Where(a => !a.shape).SelectMany(a => a.Segments);
@@ -446,7 +423,7 @@ public partial class LevelEditor : MapLoader
             //if (np != null && !np.Spline2.shape && !android && (np.pivot - pos).magnitude < 1000)
             //    rotateCamPivot = np.pivot;
             //else
-                rotateCamPivot = GetPoint();
+            rotateCamPivot = GetPoint();
 
         if (Input.GetKeyDown(KeyCode.Z) && segment != null && (segment.NextControlPoint == null))
         {
@@ -460,7 +437,7 @@ public partial class LevelEditor : MapLoader
 
         if (mouseButton0 && draw)
         {
-            Cursor.SetCursor(_Loader.guiSkins.updownCursor, Vector2.one*16, CursorMode.Auto);
+            Cursor.SetCursor(_Loader.guiSkins.updownCursor, Vector2.one * 16, CursorMode.Auto);
         }
         else
             Cursor.SetCursor(null, Vector3.zero, CursorMode.Auto);
@@ -474,7 +451,7 @@ public partial class LevelEditor : MapLoader
         }
         if (mouseButton1 /*&& (alt || draw||tool == Tool.Models)*/ || mouseButton0 && tool == Tool.CameraZoom)
             if (!shapeEditor)
-                pos += transform.forward * (mouseDelta.y) * scaleFactor*2; 
+                pos += transform.forward * (mouseDelta.y) * scaleFactor * 2;
             else
                 shapeCamera.orthographicSize += mouseDelta.y;
         if (alt)         /***********************alt*/
@@ -485,7 +462,7 @@ public partial class LevelEditor : MapLoader
         hitTestSegment = null;
         if (tool != Tool.Brush && tool != Tool.BrushErase && tool != Tool.CheckPoint)//&& (!android || tool != Tool.Draw || segment == null)
         {
-            if(android)
+            if (android)
                 hitTest = Physics.SphereCast(ray, 3, out hit, 1000, 1 << Layer.node);
             else
                 hitTest = Physics.Raycast(ray, out hit, 1000, 1 << Layer.node);
@@ -528,21 +505,21 @@ public partial class LevelEditor : MapLoader
                 else if (!drawRoad)
                     segment = null;
                 //else if ((tool == Tool.CheckPoint || tool == Tool.StartPoint) && mouseButtonDown0)
-                    //Popup2("You must click on white sphere to add " + tool, OnEditorWindow);
+                //Popup2("You must click on white sphere to add " + tool, OnEditorWindow);
             }
-            
+
         }
         if (!mouseButton0)
             drag = null;
-        if (onHeight && (mouseButton0||shift))
+        if (onHeight && (mouseButton0 || shift))
         {
             UpdateHeight(mouseDelta.y, drag == null);
             if (tool != Tool.Height)
                 return;
         }
-        if (np != null && np.dist < 100 && drag == null )
+        if (np != null && np.dist < 100 && drag == null)
         {
-            
+
             var sg = np;
             if (!mouseButtonDown0)
             {
@@ -569,7 +546,7 @@ public partial class LevelEditor : MapLoader
         if (segment != null)
         {
             var delta = mouseDelta.y;
-            
+
             if (mouseButton0 && drag != null && onRotate)
             {
                 if (affectNext || affectPrev)
@@ -635,14 +612,14 @@ public partial class LevelEditor : MapLoader
                 else
                     Reset();
             }
-            
+
             //}
             //else if (tool != Tool.Insert && tool != Tool.CheckPoint && tool != Tool.StartPoint && tool != Tool.Brush)
             //{
             //    Popup("To " + tool + " road please click and drag white sphere", OnEditorWindow, 600, 250);
             //}
         }
-        if (mouseButtonUp1 && win.mouseDrag < (android ? 5 : 1)/1024f)
+        if (mouseButtonUp1 && win.mouseDrag < (android ? 5 : 1) / 1024f)
             Reset();
         UpdateSwirl2();
     }
@@ -652,16 +629,16 @@ public partial class LevelEditor : MapLoader
     public class ObjectList
     {
         public List<GameObject> list = new List<GameObject>();
-        public bool enabled=true;
+        public bool enabled = true;
     }
     //public void HideGroupAdd(GameObject g)
     //{
     //    var r = Regex.Replace(g.name, @"CP\d*|.Clone.", "");
     //    var o = hideGroup.TryGet(r, new ObjectList());
     //    o.list.Add(g);
-         
+
     //}
-    
+
     private void UpdateNodeRenderer()
     {
         foreach (CurvySpline2 sp in splines)
@@ -678,7 +655,7 @@ public partial class LevelEditor : MapLoader
                     //node.renderer.enabled = node.collider.enabled = !sp.hide;
                     if (!s.Spline2.shape)
                         node.localScale = Vector3.one * (3f + (node.position - camera.transform.position).magnitude * .03f);
-                }                
+                }
             }
             if (sp.pivot != null)
             {
@@ -724,7 +701,7 @@ public partial class LevelEditor : MapLoader
         //selectedColorTexture = pickTexture = null;
         //selectedShapes = segment.spls;
         if (Math.Abs(position.y - cursor.position.y) > .01f)
-        {            
+        {
             cursor.position = position;
             cursor.position = GetPoint();
         }
@@ -750,7 +727,7 @@ public partial class LevelEditor : MapLoader
     }
     public IEnumerator SaveMap()
     {
-        LogEvent(EventGroup.LevelEditor,"Save Map");
+        LogEvent(EventGroup.LevelEditor, "Save Map");
         tool = Tool.Height;
         Update();
         UpdateModelView();
@@ -767,7 +744,7 @@ public partial class LevelEditor : MapLoader
         {
             ms.Write((int)LevelPackets.Version);
             ms.Write(setting.version);
-            Debug.Log("write map name "+unityMap);
+            Debug.Log("write map name " + unityMap);
             if (!string.IsNullOrEmpty(unityMap))
             {
                 ms.Write((int)LevelPackets.unityMap);
@@ -833,7 +810,7 @@ public partial class LevelEditor : MapLoader
                     ms.Write(sp.name);
                     if (sp.thumb != null)
                     {
-                        ms.Write((int) LevelPackets.shapeMaterial);
+                        ms.Write((int)LevelPackets.shapeMaterial);
                         ms.Write(sp.thumb.url);
                         ms.Write((int)LevelPackets.textureTile);
                         ms.Write(sp.thumb.material.mainTextureScale);
@@ -842,23 +819,23 @@ public partial class LevelEditor : MapLoader
                     ms.Write((byte)sp.roadType);
                     if (sp.wallTexture)
                         ms.Write((int)LevelPackets.Wall);
-                    if(sp.rotateTexture)
+                    if (sp.rotateTexture)
                         ms.Write((int)LevelPackets.rotateTexture);
-                    
+
                 }
                 else
                     ms.Write((int)LevelPackets.Spline);
-                
+
                 foreach (var b in sp.ControlPoints)
                 {
                     ms.Write((int)LevelPackets.Point);
                     ms.Write(b.Position);
                     ms.Write(b.swirl);
                     ms.Write((int)LevelPackets.scale);
-                    ms.Write(b.scale);                    
+                    ms.Write(b.scale);
                     ms.Write((int)LevelPackets.Flying);
                     ms.Write(b.flying);
-                    
+
                     if (getCheckPoint(b.transform))
                     {
                         if (getFinnish(b.transform))
@@ -876,7 +853,7 @@ public partial class LevelEditor : MapLoader
                     }
                 }
                 if (sp.Closed)
-                    ms.Write((int) LevelPackets.ClosedSpline);
+                    ms.Write((int)LevelPackets.ClosedSpline);
             }
 
             ms.Write((int)LevelPackets.Laps);
@@ -892,7 +869,7 @@ public partial class LevelEditor : MapLoader
             myMaps = myMaps.Distinct().ToList();
             ShowWindowNoBack(TestMapWindow);
         }
-        
+
     }
     public List<string> myMaps { get { return PlayerPrefsGetStrings("savedMaps"); } set { PlayerPrefsSetStringList("savedMaps", value); } }
     private void TestMapWindow()
@@ -918,12 +895,12 @@ public partial class LevelEditor : MapLoader
                 Popup("You must add red and blue team spawns");
                 return;
             }
-            
-            if (mapSets.enableDm || mapSets.enableCtf||isDebug)
+
+            if (mapSets.enableDm || mapSets.enableCtf || isDebug)
                 SubmitMap();
             else if (mapSets.race)
                 StartCoroutine(StartTest(true));
-            
+
         }
 
         gui.EndHorizontal();
@@ -945,8 +922,8 @@ public partial class LevelEditor : MapLoader
     protected void Menu() { }
     public void OnGUI()
     {
-        
-        if (win.act!= OnEditorWindow&& !isDebug)
+
+        if (win.act != OnEditorWindow && !isDebug)
             return;
         CustomWindow.GUIMatrix();
         GUI.depth = -1;
@@ -960,8 +937,7 @@ public partial class LevelEditor : MapLoader
 
             if (!hideMenu)
             {
-                if (Button("Level Settings"))
-                    ShowWindow(LevelSettingsWindow, win.act);
+
                 if (Button("Save"))
                 {
                     //if ((GameObject.FindGameObjectWithTag(Tag.CheckPoint) == null ||
@@ -970,30 +946,29 @@ public partial class LevelEditor : MapLoader
                     //else
                     ShowWindow(SaveMapWindow, win.act);
                 }
-                
+
                 if (Button("Load"))
                 {
                     _Loader.userMaps.Clear();
                     ShowWindow(LoadMapWindow, win.act);
                     StartCoroutine(_Loader.DownloadUserMaps(0, 0));
-                }                                
+                }
+                if (Button("Load (.Unity3D)"))
+                    ShowWindow(LoadUnityMapWindow, win.act);
             }
             else if (Button("Show More Tools"))
             {
                 ShowEditorWindow();
                 hideMenu = false;
             }
-            if (Button("Clear"))
-                Clear();
-            if (Button("Reset Camera")) 
-                ResetCam();
+
             if (BackButton("Back to menu"))
                 ShowWindowNoBack(delegate
                 {
-                    Label("Exit level editor?"); 
+                    Label("Exit level editor?");
                     gui.BeginHorizontal();
-                    if (Button("Yes")) BackToMenu(); 
-                    if (Button("No")) ShowEditorWindow(); 
+                    if (Button("Yes")) BackToMenu();
+                    if (Button("No")) ShowEditorWindow();
                     gui.EndHorizontal();
                 });
         }
@@ -1001,21 +976,19 @@ public partial class LevelEditor : MapLoader
         if (Event.current.type == EventType.Repaint && !string.IsNullOrEmpty(GUI.tooltip))
             win.tooltip = GUI.tooltip;
     }
-    
-    public void LoadTestMapWindow()
+
+    public void LoadUnityMapWindow()
     {
         BeginScrollView();
-        foreach (var a in _Loader.scenes.Where(a => !a.userMap))
-            if(Button(a.name))
-            {
-                Clear();
-                unityMap = mapName = a.name;
-            }
-        if (Button("test"))
-        {
+        gui.BeginHorizontal();
+        TextField("Url:", unityMap);
+        if (Button("Load", false))
             Clear();
-            unityMap = mapName = "a02";
-        }
+
+        gui.EndHorizontal();
+        foreach (var a in _Loader.scenes.Where(a => !a.userMap))
+            if (Button(a.name))
+                unityMap = mapName = a.name;
         gui.EndScrollView();
     }
 
@@ -1026,9 +999,9 @@ public partial class LevelEditor : MapLoader
         var w = new WWW(mainSite + "/docs/tutorial/getFiles.php");
         yield return w;
         tutorialUrls = SplitString(w.text);
-        foreach (var a in  tutorialUrls)
+        foreach (var a in tutorialUrls)
         {
-            
+
             w = new WWW(mainSite + "/docs/tutorial/" + Uri.EscapeUriString(a));
             yield return w;
             if (w.texture != null)
@@ -1039,7 +1012,7 @@ public partial class LevelEditor : MapLoader
     private int selectedSlide;
     private void Tutorial()
     {
-        Setup(Screen.width, Screen.height,"Tutorial");
+        Setup(Screen.width, Screen.height, "Tutorial");
         //win.offset2.y = 20;
         Label("");
         if (tutorialTextures.Count == 0)
@@ -1056,7 +1029,7 @@ public partial class LevelEditor : MapLoader
             gui.FlexibleSpace();
             if (selectedSlide > 0 && Button("<<Prev"))
                 selectedSlide--;
-            gui.Label((selectedSlide + 1) + "/" + tutorialUrls.Length+ " Slide");
+            gui.Label((selectedSlide + 1) + "/" + tutorialUrls.Length + " Slide");
             if (selectedSlide < tutorialTextures.Count - 1 && Button("Next>>"))
                 selectedSlide++;
 
@@ -1072,15 +1045,15 @@ public partial class LevelEditor : MapLoader
     {
         _Loader.LoadLevel(Levels.menu);
     }
-    
 
-    
-    
+
+
+
     //public void OnEditorGui2()
     //{
     //    OnEditorGui2();
     //}
-    
+
     private float windowScroll;
     public Vector2 roadShapesScroll;
     //public string hideSearch="";
@@ -1095,7 +1068,7 @@ public partial class LevelEditor : MapLoader
 
         //gui.Label("");
 
-        
+
         if (!shapeEditor)
         {
             if (BeginVertical("Road Shapes"))
@@ -1104,7 +1077,7 @@ public partial class LevelEditor : MapLoader
                     EnableShapeEditor(true);
                 foreach (CurvySpline2 a in shapes)
                 {
-                    var ss = brushShapes ;
+                    var ss = brushShapes;
                     bool contains = ss.Contains(a);
                     var toggle = gui.Toggle(contains, a.name);
                     if (toggle != contains)
@@ -1118,7 +1091,7 @@ public partial class LevelEditor : MapLoader
                 gui.EndVertical();
             }
         }
-        
+
         //if (BeginVertical("Hide Objects"))
         //{
         //    gui.BeginHorizontal();
@@ -1149,17 +1122,17 @@ public partial class LevelEditor : MapLoader
         //    gui.EndVertical();
         //}
         DrawTools();
-        
+
         if (BeginVertical("Models"))
         {
-            if (!modelLib)
+            if (modelLib==null)
                 Label("Loading");
             else
                 DrawModelView();
-            
+
             gui.EndVertical();
         }
-        
+
         if (BeginVertical("Terrain"))
         {
             var ht = gui.Toggle(hideTerrain, "Hide Terrain");
@@ -1181,8 +1154,21 @@ public partial class LevelEditor : MapLoader
                     UpdateTerrain(null, true, showTrees);
                 autoRefreshTerrain = Toggle(autoRefreshTerrain, "Auto Refresh Terrain");
                 showTrees = gui.Toggle(showTrees, "Show Trees");
-                
+
             }
+            gui.EndVertical();
+        }
+        if (BeginVertical("Settings"))
+        {
+            if (Button("Level Settings"))
+                ShowWindow(LevelSettingsWindow, win.act);
+            if (Button("Clear"))
+            {
+                unityMap = "";
+                Clear();
+            }
+            if (Button("Reset Camera"))
+                ResetCam();
             gui.EndVertical();
         }
         TutorialHelp();
@@ -1190,21 +1176,21 @@ public partial class LevelEditor : MapLoader
         if (xMax > 1)
             scrollMax = xMax;
         gui.EndArea();
-        
+
         //gui.EndScrollView();
 
-        
+
     }
-    
+
     private void WinSetupScroll()
     {
-//int width = Mathf.Min(300, (int)(Screen.width * .3f / CustomWindow.guiscale.x));
+        //int width = Mathf.Min(300, (int)(Screen.width * .3f / CustomWindow.guiscale.x));
         int width = android ? 170 : 250;
         win.Setup(width, 1000, "", Dock.Left, null, null, 1.3f);
         //win.offset2.y = 20;
         if (windowHit && mouseScroll != 0)
-            windowScroll = Mathf.Clamp(windowScroll + mouseScroll*600,-scrollMax+100,0);
-        
+            windowScroll = Mathf.Clamp(windowScroll + mouseScroll * 600, -scrollMax + 100, 0);
+
         gui.BeginArea(new Rect(0, windowScroll + 30, width - 2, 1000));
     }
     private int brushToolsTab;
@@ -1216,7 +1202,7 @@ public partial class LevelEditor : MapLoader
             if (!shapeEditor)
                 drawRoad = Toggle(drawRoad, "Draw Road and");
             Tool toolbar = (Tool)Toolbar((int)tool, shapeEditor ? toolStrsShape : android ? toolStrsAndroid : toolStrs, true, false, 99, 2);
-            if (tool != toolbar )
+            if (tool != toolbar)
             {
                 if (toolbar == Tool.Brush)
                     ToggleTab("Road Shapes");
@@ -1227,7 +1213,7 @@ public partial class LevelEditor : MapLoader
             {
                 flying = Toggle(flying, "In Air");
                 if (segment != null)
-                    segment.flying = flying; 
+                    segment.flying = flying;
             }
             affectPrev = Toggle(affectPrev, "Affect to Left Side");
             affectNext = Toggle(affectNext, "Affect to Right Side");
@@ -1267,7 +1253,7 @@ public partial class LevelEditor : MapLoader
             //}
             gui.EndVertical();
         }
-        
+
     }
     private float scrollMax;
     //private void Duplicate()
@@ -1295,7 +1281,7 @@ public partial class LevelEditor : MapLoader
     //    tool = Tool.Move;
     //    affectPrev = affectNext = true;
     //}
-    
+
     private string[] roadTypes;
     private int curFolder;
 
@@ -1349,7 +1335,7 @@ public partial class LevelEditor : MapLoader
     {
         if (BeginVertical("Help"))
         {
-            //BeginScrollView();
+            //BeginScrollView();            
             if (android)
                 VideoYoutube();
             if (!android)
@@ -1377,7 +1363,7 @@ public partial class LevelEditor : MapLoader
             //gui.EndScrollView();
             gui.EndVertical();
         }
-        
+
         gui.FlexibleSpace();
     }
     private void UpdateHeight(float height, bool scroll = false)
@@ -1412,13 +1398,12 @@ public partial class LevelEditor : MapLoader
     {
         gui.BeginHorizontal();
         search = gui.TextField(search);
-        if (Button("Search")) { StartCoroutine(_Loader.DownloadUserMaps(0, (int) _Loader.mapSets.levelFlags, search)); }
+        if (Button("Search")) { StartCoroutine(_Loader.DownloadUserMaps(0, (int)_Loader.mapSets.levelFlags, search)); }
         gui.EndHorizontal();
         BeginScrollView();
 
-        if (Button("Standart Maps"))
-            ShowWindow(LoadTestMapWindow, win.act);
-        if(Button("Sample Map"))
+
+        if (Button("Sample Map"))
         {
             Popup2("Loading Map");
             mapName = "primer1";
@@ -1457,8 +1442,8 @@ public partial class LevelEditor : MapLoader
         tool = Tool.Height;
         UpdateModelView();
         if (submit && checkPoints.Length < 2)
-        {            
-            Popup("You need to put at least 2 CheckPoints",OnEditorWindow);
+        {
+            Popup("You need to put at least 2 CheckPoints", OnEditorWindow);
             yield break;
         }
         starting = true;
@@ -1467,7 +1452,7 @@ public partial class LevelEditor : MapLoader
 
         if (submit)
             UpdateTerrain(null, true, showTrees);
-        
+
 
         submitMapPublish = submit;
         win.CloseWindow();
@@ -1495,15 +1480,15 @@ public partial class LevelEditor : MapLoader
         starting = false;
     }
     internal bool submitMapPublish;
-    private bool starting ;
+    private bool starting;
     public IEnumerator Resume()
     {
-        if ((_Game.finnish||isDebug) && submitMapPublish)
+        if ((_Game.finnish || isDebug) && submitMapPublish)
         {
             if (_Game.timeElapsed > 20 || isDebug)
             {
                 bool yes = false, no = false;
-                ShowWindowNoBack(delegate { Label("Do you want to publish map right now?"); gui.BeginHorizontal(); no = Button("No"); yes = Button("Yes"); gui.EndHorizontal();});
+                ShowWindowNoBack(delegate { Label("Do you want to publish map right now?"); gui.BeginHorizontal(); no = Button("No"); yes = Button("Yes"); gui.EndHorizontal(); });
                 while (!no && !yes)
                     yield return null;
                 if (yes)
@@ -1512,7 +1497,7 @@ public partial class LevelEditor : MapLoader
                     yield break;
                 }
             }
-        }        
+        }
         yield return null;
         Time.timeScale = 0;
         ShowEditorWindow();
@@ -1525,9 +1510,9 @@ public partial class LevelEditor : MapLoader
         StartCoroutine(ActiveEditor(true));
 
         if (submitMapPublish && _Game.finnish)
-            Popup("Your map is too short for publishing"); 
+            Popup("Your map is too short for publishing");
 
-        
+
 
     }
 
@@ -1539,7 +1524,7 @@ public partial class LevelEditor : MapLoader
         _Loader.AproveMap(1, mapSets.usedAdvancedTools ? 1 : 0);
         //_Loader.gamePlayed = true;
         //_Loader.tabSelected = Tag.userTab;
-        ShowWindowNoBack(delegate { Label("Map published "); if (BackButtonLeft())BackToMenu(); });
+        ShowWindowNoBack(delegate { Label("Map published "); if (BackButtonLeft()) BackToMenu(); });
     }
 
     private void Reset()
@@ -1552,8 +1537,8 @@ public partial class LevelEditor : MapLoader
         print("Reset");
     }
     protected void Destroy() { }
-    public bool tutorialPopup { get { return PlayerPrefs.GetInt("tutorialPopup",1) == 1; } set { PlayerPrefs.SetInt("tutorialPopup", value ? 1 : 0); } }
-    protected bool enableClosed2=true;
+    public bool tutorialPopup { get { return PlayerPrefs.GetInt("tutorialPopup", 1) == 1; } set { PlayerPrefs.SetInt("tutorialPopup", value ? 1 : 0); } }
+    protected bool enableClosed2 = true;
     private void Remove(GameObject o)
     {
         CurvySplineSegment c = o.GetComponent<CurvySplineSegment>();
@@ -1565,10 +1550,10 @@ public partial class LevelEditor : MapLoader
                 c.Spline2.Closed = false;
                 return;
             }
-        
+
         var curvySplineSegment = c.PreviousSegment == null ? c.NextSegment : c.PreviousSegment;
         segment = c.NextControlPoint == null ? c.PreviousControlPoint : c.NextControlPoint;
-        
+
         if (c.Spline.Segments.Count <= (shapeEditor ? 2 : 1))
         {
             print("Destr");
@@ -1577,21 +1562,21 @@ public partial class LevelEditor : MapLoader
         else
             c.Spline.Delete(c);
 
-        if (segment!=null && segment.NextControlPoint != null && segment.PreviousControlPoint != null)
+        if (segment != null && segment.NextControlPoint != null && segment.PreviousControlPoint != null)
             segment = null;
 
         if (curvySplineSegment != null)
         {
-            
+
             foreach (var a in curvySplineSegment.sbs)
                 a.Refresh();
             curvySplineSegment.Spline2.Refresh();
             UpdateTerrain(curvySplineSegment);
         }
-        
+
         if (segment != null)
             CopyFrom(segment, segment.Position);
-        
+
     }
     private Vector3 GetPoint()
     {
@@ -1607,12 +1592,12 @@ public partial class LevelEditor : MapLoader
         return p;
     }
 
-    
+
 
 
     public void OnPostRender()
     {
-        
+
         res.lineMaterialYellow.SetPass(0);
         GL.Color(Color.green);
 
@@ -1625,8 +1610,8 @@ public partial class LevelEditor : MapLoader
             var b = new Vector3(m.x / Screen.width, m.y / Screen.height, 10);
 
             var i = 20;
-            GL.Vertex(camera.ViewportToWorldPoint(new Vector3(a.x,a.y,i)));
-            GL.Vertex(camera.ViewportToWorldPoint(new Vector3(b.x, a.y,i)));
+            GL.Vertex(camera.ViewportToWorldPoint(new Vector3(a.x, a.y, i)));
+            GL.Vertex(camera.ViewportToWorldPoint(new Vector3(b.x, a.y, i)));
 
             GL.Vertex(camera.ViewportToWorldPoint(new Vector3(b.x, a.y, i)));
             GL.Vertex(camera.ViewportToWorldPoint(new Vector3(b.x, b.y, i)));
@@ -1638,7 +1623,7 @@ public partial class LevelEditor : MapLoader
             GL.Vertex(camera.ViewportToWorldPoint(new Vector3(a.x, a.y, i)));
         }
 
-        
+
         GL.Vertex(cursorPos);
         GL.Vertex(cursorPos + Vector3.down * 100);
         if (np != null)
@@ -1691,6 +1676,6 @@ public partial class LevelEditor : MapLoader
         get { return GameObject.FindGameObjectsWithTag(Tag.CheckPoint); }
     }
     public MapSets mapSets = new MapSets() { levelFlags = LevelFlags.race };
-    
+
 }
 

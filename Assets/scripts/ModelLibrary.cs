@@ -11,7 +11,7 @@ using UnityEngine;
 using gui = UnityEngine.GUILayout;
 using Object = UnityEngine.Object;
 
-public class ModelLibrary:bs
+public class ModelLibrary
 {
     public ModelItem RootItem;
 
@@ -37,8 +37,7 @@ public class ModelLibrary:bs
     }
 
 }
-
-[Serializable]
+  
 public class ModelFile
 {
     internal int usedCount;
@@ -130,7 +129,6 @@ public class ModelFile
         }
     }
 }
-[Serializable]
 public class ModelItem
 {
     public string Name;

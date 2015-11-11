@@ -156,7 +156,7 @@ public class Tools2 : Editor
         string path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(animationClip)) + "/" + animationClip.name + ((animationClip is AnimationClip) ? ".anim" : ".png");
         AssetDatabase.CreateAsset(Instantiate(animationClip), path);
     }
-    
+
     //[MenuItem("RTools/AddToLibrary2")]
     //static void Start()
     //{
@@ -182,22 +182,25 @@ public class Tools2 : Editor
     //    //StaticBatchingUtility.Combine(Selection.activeGameObject);
     //    Selection.activeGameObject.AddComponent<MeshFilter>().sharedMesh= Selection.activeGameObject.GetComponentInChildren<MeshFilter>().sharedMesh;
     //}
+    private static ModelLibrary modelLibrary;
     [MenuItem("RTools/AddToLibrary")]
     public static void AddToLibrary()
     {
         //resEditor.ModelLibrary.RootItem.dirs.Clear();
         //resEditor.ModelLibrary.RootItem.files.Clear();
         //resEditor.ModelLibrary.models.Clear();
+        modelLibrary = new ModelLibrary();
+        
         foreach (var a in Selection.objects)
         {
             var modelItem = new ModelItem();
-            resEditor.ModelLibrary.RootItem.dirs.Add(modelItem);
+            modelLibrary.RootItem.dirs.Add(modelItem);
             var path = AssetDatabase.GetAssetPath(a);
             modelItem.Name = Path.GetFileName(path);
             GetDirs(path, modelItem);
         }
         //resEditor.ModelLibrary.models = resEditor.ModelLibrary.models.Where(a => a.gameObj != null).ToList();
-        EditorUtility.SetDirty(resEditor.ModelLibrary);
+        //EditorUtility.SetDirty(modelLibrary);
         //resEditor.ModelLibrary.RootItem
     }
     public static void GetDirs(string path, ModelItem modelItem)
@@ -223,7 +226,7 @@ public class Tools2 : Editor
                     continue;
             var modelFile = new ModelFile() { path = a.Substring(a.IndexOf("Resources/") + 10), name = Path.GetFileNameWithoutExtension(a) };
             modelItem.files.Add(modelFile);
-            resEditor.ModelLibrary.models.Add(modelFile);
+            modelLibrary.models.Add(modelFile);
             if (modelItem.FolderTexture == null)
                 modelItem.FolderTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(p, typeof(Texture2D));
             ;

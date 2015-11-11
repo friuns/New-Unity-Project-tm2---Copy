@@ -1142,7 +1142,7 @@ public partial class Player : bsNetwork, IComparer<Player>
             float fvDirt = (dirtMaterial ? .5f : (brakeKey || driftKey ? carSkin.getBrakeDrift(): 1)*carSkin.getDrift()) + fv.magnitude/450f + /*dot **/ dot * 6;
             Log("fvskid:" + fvDirt);
             if (velm > 1 || upAngle > 10)
-                fv = Vector3.Slerp(vel, fv, fvDirt * Friq * (_Loader.snow ? .2f : _Loader.rain ? .5f : 1) * fx2 / Mathf.Min(skid / 2 + .5f, 2));
+                fv = Vector3.Slerp(vel, fv, fvDirt * Friq * (_Loader.rain ? .5f : 1) * fx2 / Mathf.Min(skid / 2 + .5f, 2));
             //if (_Loader.enableMouse)
                 //fv = fv.normalized * (fv.magnitude - (fv - vel).magnitude * (res.speedSubOnRotate / f));/* mouse */
             vel = new Vector3(fv.x, (velm < minVel ? vel.y : fv.y), fv.z);

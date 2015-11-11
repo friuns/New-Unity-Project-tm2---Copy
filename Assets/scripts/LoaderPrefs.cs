@@ -19,7 +19,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public partial class Loader:GuiClasses
+public partial class Loader : GuiClasses
 {
     internal string prefixMapPl;
     internal string prefixplat { get { return playerName + platformPrefix; } }
@@ -56,23 +56,25 @@ public partial class Loader:GuiClasses
     internal string password { get { return rememberPassword ? PlayerPrefs.GetString(playerName + "password") : m_password; } set { if (rememberPassword) PlayerPrefs.SetString(playerName + "password", value); else m_password = value; } }
     internal string vkPassword { get { return PlayerPrefs.GetString("vkpassword"); } set { PlayerPrefs.SetString("vkpassword", value); } }
 
-    
+
 
     //public bool reverseSplitScreen { get { return PlayerPrefsGetBool(playerName + "reverseSplitScreen", android); } set { PlayerPrefsSetBool(playerName + "reverseSplitScreen", value); } }
-    
+
     public bool accelometer { get { return controls == Contr.acel; } }
     public bool autoFullScreen { get { return PlayerPrefsGetBool("autoFullScreen", Application.isWebPlayer && !Nancl); } set { PlayerPrefsSetBool("autoFullScreen", value); } }
     //public static bool webPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
-    public bool showYourGhost { get { return PlayerPrefsGetBool(prefixplat + "showYourGhost", !android && !Application.isEditor); } set { PlayerPrefsSetBool(prefixplat + "showYourGhost", value) ; } }
+    public bool showYourGhost { get { return PlayerPrefsGetBool(prefixplat + "showYourGhost", !android && !Application.isEditor); } set { PlayerPrefsSetBool(prefixplat + "showYourGhost", value); } }
     //public bool statsSaved { get { return PlayerPrefsGetBool(playerName + "StatsSaved2"); } set { PlayerPrefsSetBool(playerName + "StatsSaved2", value); } }
     public float record { get { return PlayerPrefsGetFloat(6 + prefixMapPl + "record", float.MaxValue); } set { PlayerPrefsSetFloat(6 + prefixMapPl + "record", value); } }
     public int avatar { get { return PlayerPrefsGetInt(playerName + "avatar", isDebug ? 0 : -1); } set { PlayerPrefsSetInt(playerName + "avatar", value); } }
-    public Texture2D Avatar { get { return res.GetAvatar(avatar,avatarUrl); } }
+    public bool showBanner { get { return PlayerPrefsGetBool("showbanner", true); } set { PlayerPrefsSetBool("showbanner", value); } }
+
+    public Texture2D Avatar { get { return res.GetAvatar(avatar, avatarUrl); } }
     internal string avatarUrl { get { return PlayerPrefsGetString("avatarUrl", ""); } set { PlayerPrefsSetString("avatarUrl", value); } }
     //public bool useUrlAvatar { get { return PlayerPrefsGetBool("useUrlAvatar"); } set { PlayerPrefsSetBool("useUrlAvatar", value); } }
 
     public int carSkin { get { return PlayerPrefsGetInt(playerName + "car", 0); } set { PlayerPrefsSetInt(playerName + "car", value); } }
-    
+
 
     public int place
     {
@@ -86,16 +88,16 @@ public partial class Loader:GuiClasses
         }
     }
 
-    internal float voiceChatVolume=1;
+    internal float voiceChatVolume = 1;
     internal bool enableChat = true;
-    
+
     public int PlayersCount { get { return PlayerPrefsGetInt(prefixplat + "PlayersCount", android ? 0 : 3); } set { PlayerPrefsSetInt(prefixplat + "PlayersCount", value); } }
-    
+
     public bool scaleButtons { get { return PlayerPrefsGetBool(prefixplat + "scaleButtons", android); } set { PlayerPrefsSetBool(prefixplat + "scaleButtons", value); } }
 
     public bool enableBloom { get { return PlayerPrefsGetBool(prefixplat + "enableBloom", false); } set { PlayerPrefsSetBool(prefixplat + "enableBloom", value); } }
 
-    
+
 
     public List<string> favorites { get { return PlayerPrefsGetStrings("favs"); } set { PlayerPrefsSetStringList("favs", value); } }
 
@@ -140,7 +142,7 @@ public partial class Loader:GuiClasses
     public bool enableMouse { get { return m_enableMouse; } set { m_enableMouse = value; } }
     //{ get { return controls == ; } set { controls = value ? Contr.mouse : Contr.keys; } }
 
-    
+
     public int? m_drawDistance;
     public int drawDistance { get { return m_drawDistance ?? (m_drawDistance = PlayerPrefsGetInt(prefixplat + "drawDistance", 1000)).Value; } set { PlayerPrefsSetInt(prefixplat + "drawDistance", (m_drawDistance = value).Value); } }
 
@@ -153,7 +155,7 @@ public partial class Loader:GuiClasses
 
     public Difficulty? m_difficulty;
     public Difficulty difficulty { get { return m_difficulty ?? (m_difficulty = (Difficulty)PlayerPrefsGetInt(prefixplat + "difficulty", 0)).Value; } set { PlayerPrefsSetInt(prefixplat + "difficulty", ((int)(m_difficulty = value).Value)); } }
-    
+
 
     public bool? m_autoQuality;
     public bool autoQuality { get { return (m_autoQuality ?? (m_autoQuality = PlayerPrefsGetBool(prefixplat + "autoQuality", !androidPlatform && !isDebug)).Value); } set { PlayerPrefsSetBool(prefixplat + "autoQuality", (m_autoQuality = value).Value); } }
@@ -193,7 +195,7 @@ public partial class Loader:GuiClasses
     internal float soundVolume2 { get { return m_audioVolume ?? (m_audioVolume = flash && !isDebug ? 0 : PlayerPrefsGetFloat("audioVolume2", .5f)).Value; } set { PlayerPrefsSetFloat("audioVolume2", (m_audioVolume = value).Value); } }
     internal float soundVolume = 1;
     protected float? m_musicVolume;
-    public float musicVolume { get { return m_musicVolume ?? (m_musicVolume = PlayerPrefsGetFloat(prefixplat + "musicVolume3", isDebug?0:1)).Value; } set { PlayerPrefsSetFloat(prefixplat + "musicVolume3", (m_musicVolume = value).Value); } }    
+    public float musicVolume { get { return m_musicVolume ?? (m_musicVolume = PlayerPrefsGetFloat(prefixplat + "musicVolume3", isDebug ? 0 : 1)).Value; } set { PlayerPrefsSetFloat(prefixplat + "musicVolume3", (m_musicVolume = value).Value); } }
     public float? m_flying;
     public float flying { get { return m_flying ?? (m_flying = PlayerPrefsGetFloat(prefixMapPl + "flying")).Value; } set { PlayerPrefsSetFloat(prefixMapPl + "flying", (m_flying = value).Value); } }
     //public float? m_fieldOfView;

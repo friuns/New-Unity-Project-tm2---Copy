@@ -35,7 +35,7 @@ public partial class LevelEditor
     public void ModeViewStart()
     {
         folderStype = buttonSetup(win.skinDefault.button, 130);
-        if (modelLib)
+        if (modelLib!=null)
         {
             var gameObj = modelLib.models[0].gameObj;
             sgo = InitModel((GameObject)Instantiate(gameObj), gameObj.name);

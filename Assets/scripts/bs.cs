@@ -51,10 +51,10 @@ public partial class bs : Base2
         get
         {
             if (!m_GameSettings)
-            {                
-                m_GameSettings = (GameSettings) FindObjectOfType(typeof (GameSettings));
+            {
+                m_GameSettings = (GameSettings)FindObjectOfType(typeof(GameSettings));
                 if (!m_GameSettings)
-                    m_GameSettings = (GameSettings) Instantiate(res.gameSettings);
+                    m_GameSettings = (GameSettings)Instantiate(res.gameSettings);
             }
             return m_GameSettings;
         }
@@ -64,7 +64,7 @@ public partial class bs : Base2
     public static Player _Player2 { get { return _Game.m_Player2; } set { _Game.m_Player2 = value; } }
     public static Res res;//{ get { return _Loader.res; } }
     public static bool isDebug;//{ get { return setting.debug; } }
-    public static bool isMod { get { return _Loader.modType >= ModType.mod; } }    
+    public static bool isMod { get { return _Loader.modType >= ModType.mod; } }
     public static bool ios { get { return setting.m_ios; } }
     public static Music _music;
     public static MpGame _MpGame;
@@ -97,7 +97,7 @@ public partial class bs : Base2
     {
         Log(s, false);
     }
-    
+
 
     public static void Log(object s, bool important)
     {
@@ -107,13 +107,13 @@ public partial class bs : Base2
         else
             sbuilder.Append(s + "\r\n");
     }
-    
+
     [Conditional("UNITY_EDITOR")]
     public static void LogRight(object s)
     {
         //if (!setting.enableLog) return;
         sbuilderRight.Append(s + "\r\n");
-        
+
     }
     public virtual void Awake()
     {
@@ -146,7 +146,7 @@ public partial class bs : Base2
     }
     public static WWW Download2(string s, Action<string> a, bool post, params object[] prms)
     {
-        return Download(s, delegate(string txt, bool b) { a(b ? txt : ""); }, post, prms);
+        return Download(s, delegate (string txt, bool b) { a(b ? txt : ""); }, post, prms);
     }
 
 
@@ -191,7 +191,7 @@ public partial class bs : Base2
             return null;
         }
         s = Uri.EscapeUriString(s);
-        
+
         WWW w;
         StringBuilder query = new StringBuilder();
         if (prms.Length > 0)
@@ -211,20 +211,20 @@ public partial class bs : Base2
                 query.Append(i != 0 ? "&" : "?");
                 query.Append(prms[i] + "=" + WWW.EscapeURL(prms[i + 1].ToString()));
             }
-            w = post ? new WWW(s, form) : new WWW(s + query);            
+            w = post ? new WWW(s, form) : new WWW(s + query);
         }
         else
             w = new WWW(s);
         var url = post ? w.url + query : w.url;
         print(url);
         if (_Loader != null)
-            _Loader.StartCoroutine(DownloadCor(a, w,url));
+            _Loader.StartCoroutine(DownloadCor(a, w, url));
         else
-            _LoadingScreen.StartCoroutine(DownloadCor(a, w,url));
+            _LoadingScreen.StartCoroutine(DownloadCor(a, w, url));
         return w;
     }
     //private static  string url;
-    private static IEnumerator DownloadCor(Action<string, bool> a, WWW w,string url)
+    private static IEnumerator DownloadCor(Action<string, bool> a, WWW w, string url)
     {
         //if (debugThis)
         //print("URL "+url);
@@ -245,8 +245,8 @@ public partial class bs : Base2
         string trim;
 
         //if (debugThis)
-            //print("Preparing Cache "+url);
-        if (!hasCache && String.IsNullOrEmpty(w.error) && !((trim = w.text.Trim()).StartsWith("<") && trim.EndsWith(">")) && !setting.offline )
+        //print("Preparing Cache "+url);
+        if (!hasCache && String.IsNullOrEmpty(w.error) && !((trim = w.text.Trim()).StartsWith("<") && trim.EndsWith(">")) && !setting.offline)
         {
             if (a != null)
             {
@@ -255,7 +255,7 @@ public partial class bs : Base2
                     PlayerPrefs.SetString2(url, w.text);
                 a(w.text, true);
             }
-    
+
         }
         else
         {
@@ -265,7 +265,7 @@ public partial class bs : Base2
                 if (UnityEngine.PlayerPrefs.HasKey(url) && (android || setting.wwwCache))
                     a(UnityEngine.PlayerPrefs.GetString(url), true);
                 else
-                    a(w.error == null ? "Failed to Parse"+w.text : w.error, false);
+                    a(w.error == null ? "Failed to Parse" + w.text : w.error, false);
             }
             if (!hasCache)
                 Debug.LogWarning(w.error + w.url);
@@ -306,7 +306,7 @@ public partial class bs : Base2
             return true;
         return false;
     }
-    public bool FramesElapsed(int tm,int random=0)
+    public bool FramesElapsed(int tm, int random = 0)
     {
         return (Time.frameCount + random) % tm == 0 || Time.timeScale == 0;
     }
@@ -350,7 +350,7 @@ public partial class bs : Base2
         GA.API.Design.NewEvent(String.Format("{0}:{1}", @group, name.Replace(':', ' ')));
 
     }
-    
+
     public static void LogEvent(string name)
     {
         LogEvent(EventGroup.Other.ToString(), name);
@@ -408,8 +408,8 @@ public partial class bs : Base2
 
 
     public static string m_platformPrefix;
-    
-    
+
+
     public static string platformPrefix2
     {
         get { return platformPrefix + (platformPrefix == "android" ? setting.androidMapVersion : setting.MapVersion); }
@@ -432,7 +432,7 @@ public partial class bs : Base2
         }
     }
 
-    
+
     public static ResEditor resEditor
     {
         get { return (ResEditor)Resources.LoadAssetAtPath("Assets/!Prefabs/resEditor.prefab", typeof(ResEditor)); }
@@ -453,8 +453,8 @@ public partial class bs : Base2
     public void ApplicationQuit()
     {
         SaveStrings();
-        win.ShowWindow(_Loader.CloseWindow,win.act);
-        
+        win.ShowWindow(_Loader.CloseWindow, win.act);
+
         //GUI.enabled = false;
         //Invoke("ApplicationQuit2", .1f);
     }
@@ -598,23 +598,23 @@ public partial class bs : Base2
     {
         return ((a % n) + n) % n;
     }
-    
+
     public static bool Nancl
     {
         get { return Application.platform == RuntimePlatform.NaCl; }
     }
     public static bool webPlayer
     {
-        get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer||Application.isEditor; }
+        get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer || Application.isEditor; }
     }
     public static List<AssetBundle> assetBundle = new List<AssetBundle>();
-    
+
     public static Object LoadRes(string name)
     {
-        foreach(var a in assetBundle)
+        foreach (var a in assetBundle)
         {
             var load = a.Load("@" + name);
-            if(load!=null)
+            if (load != null)
                 return load;
         }
         return Resources.Load(name);
@@ -644,12 +644,13 @@ public partial class bs : Base2
 
         StringBuilder sb = new StringBuilder();
         foreach (var a in playerPrefKeys)
-            sb.Append(a).Append(",");
+            if (a.StartsWith(bs._Loader.playerName))
+                sb.Append(a).Append(",");
 
         var s = Convert.ToBase64String(GZipStream.CompressString(sb.ToString()));
         print(sb.Length + " vs " + s.Length);
         PlayerPrefs.SetString2("keysnew3", s);
-        
+
 
         PlayerPrefs.Save();
     }
@@ -661,7 +662,7 @@ public partial class bs : Base2
 
     public static string Ordinal(int number)
     {
-        
+
         string suffix = String.Empty;
 
         int ones = number % 10;
@@ -692,7 +693,7 @@ public partial class bs : Base2
                     break;
             }
         }
-        return String.Format("{0}{1}", number, suffix);       
+        return String.Format("{0}{1}", number, suffix);
     }
 
     public void LogVar(string s)
@@ -718,13 +719,13 @@ public partial class bs : Base2
         //Application.ExternalCall(functionName, args);
 #endif
     }
-    
+
     public static bool wp8
     {
         get { return Application.platform == RuntimePlatform.WP8Player; }
     }
     public static int rnd = new Random().Next(9999) + 123;
-    
+
     internal int myId
     {
         get { return PhotonNetwork.player.ID; }
@@ -732,17 +733,17 @@ public partial class bs : Base2
     public bool checkVisible(Vector3 point)
     {
         var campos = _Player.camera.transform.position;
-        var wp =_Player.camera.WorldToViewportPoint(point);
+        var wp = _Player.camera.WorldToViewportPoint(point);
 
         var vis = new Rect(0, 0, 1, 1).Contains(wp) && wp.z > 0 && !Physics.Linecast(campos, point, Layer.levelMask) || Vector3.Distance(campos, point) < 50;
-        if(vis)
+        if (vis)
             Debug.DrawLine(campos, point);
         return vis;
     }
-    
-    public static void PlayOneShotGui(AudioClip sound,float volume=1)
+
+    public static void PlayOneShotGui(AudioClip sound, float volume = 1)
     {
-        _Loader.audio.PlayOneShot(sound, _Loader.soundVolume*volume);
+        _Loader.audio.PlayOneShot(sound, _Loader.soundVolume * volume);
     }
 
     public static int SetFlag(int levelFlags, int flag, bool value)
@@ -796,7 +797,7 @@ public partial class bs : Base2
         if (angle > 180) angle = angle - 360;
         return angle;
     }
-    public const int MinValue=-99999;
+    public const int MinValue = -99999;
     public const int MaxValue = 99999;
 }
 

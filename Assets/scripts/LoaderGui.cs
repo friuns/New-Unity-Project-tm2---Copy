@@ -17,6 +17,7 @@ using System.Linq;
 #endif
 using LitJson;
 using UnityEngine;
+using UnityEngine.Advertisements;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
@@ -292,10 +293,10 @@ public partial class Loader
                    if (text.StartsWith("registration success"))
                    {
                        StartCoroutine(LoadPlayerPrefs(text));
-                        //statsSaved = true;
-                        //OnLoggedIn();
-                        //WindowPool();
-                    }
+                       //statsSaved = true;
+                       //OnLoggedIn();
+                       //WindowPool();
+                   }
                    else
                        Popup2(text, RegisterWindow);
                }, false, "name", playerName, "password", password, "email", email);
@@ -318,7 +319,6 @@ public partial class Loader
                 GoOffline();
             }
     }
-    public bool showBanner { get { return PlayerPrefs.GetInt("showbanner", 1) == 1; } set { PlayerPrefs.SetInt("showbanner", value ? 1 : 0); } }
     public void OnWindowShow(Action a)
     {
         if (a == MenuWindow)
@@ -326,10 +326,10 @@ public partial class Loader
         if (showBanner)
         {
             if (a == MenuWindow)
-                SamsungAd.Instance().LoadBannerAd(SamsungAd.BannerAdType.Universal_Banner_320x50, SamsungAd.AdLayout.Top_Right, false);
+                _Loader.ShowBanner(true);
             //SamsungAd.Instance().ShowBannerAd();
             else
-                SamsungAd.Instance().DestroyBannerAd();
+                _Loader.ShowBanner(false);
         }
     }
     public void MenuWindow()
@@ -1257,6 +1257,8 @@ public partial class Loader
             _Loader.rearCamera = toggle;
             StartCoroutine(_AutoQuality.SetQuality(_Loader.quality));
         }
+        if (android)
+            _Loader.showBanner = Toggle(_Loader.showBanner, "Show Banners (Support us)");
 
         if (_Game != null && android && Button("Edit Controls"))
         {

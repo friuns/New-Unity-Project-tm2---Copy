@@ -112,10 +112,8 @@ public partial class Loader
     private int lastRd;
     private int curredRd;
     public bool dontUploadReplay;
-    internal bool carsCheat3;
     public bool carsCheat2;
     public bool carsCheat;
-    internal bool snow;
     public static Dictionary<string, Map> m_maps;
     public static Dictionary<string, Map> maps
     {
@@ -195,7 +193,6 @@ public partial class Loader
     //internal List<Scene> m_scenes { get { return res.scenes; } set { res.scenes = value; } }
 
     internal List<Scene> scenes;//{ get { return res.scenes; } }
-    private TextAsset mapsTxt;
     public TextAsset scenesTxt;
     public GUITexture fullScreen;
     private Color m_fullScreenColor;

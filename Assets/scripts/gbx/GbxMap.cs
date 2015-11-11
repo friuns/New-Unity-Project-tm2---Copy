@@ -91,10 +91,10 @@ namespace ConsoleApplication1
                         }
                     case unchecked((int)0x03043007):
                         {
-                            CGameCtnChallenge_Header c = dclass.Structure;
+                            //CGameCtnChallenge_Header c = dclass.Structure;
                             int cp = parser.position;
                             parser.Skip(1);
-                            qint32 size = parser.ReadInt32();
+                            parser.ReadInt32();
                             parser.Skip(15 + 3);
                             //c.PMapSnapshot = parser.ReadChars(size);
                             parser.Skip(cnkszs[i] - (parser.position - cp));
@@ -147,7 +147,7 @@ namespace ConsoleApplication1
         public int Nodes;
         public int NodesExternal;
 
-        public QString sourceFileName;
+        //public QString sourceFileName;
         public bool isLoaded = false;
         qint32 cid = 0;
         qint32 oldcid = 0;
@@ -462,7 +462,6 @@ namespace ConsoleApplication1
                             {
                                 Debug.Log("Unknown chunk id 0x");
                                 return; // temporarily
-                                continue;
                             }
                             break;
                         }

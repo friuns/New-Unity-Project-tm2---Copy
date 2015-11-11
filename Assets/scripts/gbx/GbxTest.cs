@@ -17,7 +17,7 @@ public class GbxTest : MonoBehaviour
     public StatDictonary stats = new StatDictonary();
     //public SerializableDictionary<string, float> test = new SerializableDictionary<string, float>();
 
-    public ModelLibrary ml;
+    internal ModelLibrary ml;
  
     void Awake()
     {

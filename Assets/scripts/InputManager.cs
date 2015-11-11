@@ -174,4 +174,9 @@ public class KeyValue
         for (int i = 0; i < keyCodeAlt.Length; i++)
             bs.PlayerPrefs.SetInt(main + "" + i, (int)keyCodeAlt[i]);
     }
+    public void Reset()
+    {
+        for (int i = 0; i < keyCodeAlt.Length; i++)
+            bs.PlayerPrefs.DeleteKey(main + "" + i);
+    }
 }

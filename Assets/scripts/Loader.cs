@@ -28,6 +28,7 @@ using PlayerPrefs = Base2.PlayerPrefs;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Advertisements;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -68,7 +69,8 @@ public partial class Loader
         try
         {
             PlayerPrefsObscured.SetString("temp", new string('A', 1024));
-        } catch (Exception)
+        }
+        catch (Exception)
         {
             LogEvent(EventGroup.Debug, "Overload");
             Debug.LogError("Overload");
@@ -80,7 +82,7 @@ public partial class Loader
         //ObscuredString.SetNewCryptoKey(sky);
         //ObscuredInt.SetNewCryptoKey(sky.GetHashCode());
         //print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+PlayerPrefsGetInt("reputationdddd"+Random.value, 20));
-        print("Loader Awake " + (isDebug? SystemInfo.deviceUniqueIdentifier:"")); 
+        print("Loader Awake " + (isDebug ? SystemInfo.deviceUniqueIdentifier : ""));
         scenes = new List<Scene>(res.scenes);
         for (int i = 0; i < scenes.Count; i++)
             scenes[i].mapId = 10000000 + i;
@@ -105,7 +107,7 @@ public partial class Loader
     }
     private IEnumerator LoadAssetBundle(string key)
     {
-        bool found=false;
+        bool found = false;
         foreach (var a in setting.backups)
         {
             Map map;
@@ -134,7 +136,7 @@ public partial class Loader
         yield return StartCoroutine(LoadAssetBundle("resources" + setting.packageVersion));
         yield return StartCoroutine(LoadAssetBundle("resourcesa" + setting.packageVersion2));
 
-        print("asset bundle loaded " + assetBundle.Count);        
+        print("asset bundle loaded " + assetBundle.Count);
         resLoaded2 = assetBundle.Count >= 1;
         resLoaded = true;
     }
@@ -203,17 +205,18 @@ public partial class Loader
         //            LogEvent(EventGroup.SiteOld, "referers/" + host);
         //    } catch (Exception) { }
         //}
-        Download(mainSite + "scripts/country.php", delegate(string s, bool b) { if (b) _Loader.contry = s.ToLower(); }, false);
+        Download(mainSite + "scripts/country.php", delegate (string s, bool b) { if (b) _Loader.contry = s.ToLower(); }, false);
         StartCoroutine(StartLoad());
         print("Init Banner");
+
         if (showBanner)
-            SamsungAd.Instance().Init("xv0d00000002jl", "xv0d00000002jl");
+            InitBanner();
         if (setting.skipLogin || setting.autoHost || setting.autoConnect)
         {
             guest = loggedIn = true;
             StartCoroutine(AddMethod(.1f, delegate { OnLoggedIn(true); }));
         }
-        Download(mainSite + "scripts/time.php", delegate(string s, bool b)
+        Download(mainSite + "scripts/time.php", delegate (string s, bool b)
         {
             if (Debug.isDebugBuild)
                 serverTime = DateTime.Now;
@@ -226,7 +229,15 @@ public partial class Loader
         //if (setting.enableCollisionCleanup)
         //    foreach (var a in res.outlineDict)
         //        res.outlines[a.Name] = a.outlineValues;
-        
+
+    }
+    public void ShowBanner(bool b)
+    {
+
+    }
+    public void InitBanner()
+    {
+
     }
 
     public IEnumerator StartTest()
@@ -265,7 +276,7 @@ public partial class Loader
         //    }));
         //}
         //else
-            yes = true;
+        yes = true;
         if (yes)
         {
             if (!setting.dontLoadAssets)
@@ -340,7 +351,7 @@ public partial class Loader
         print("OnLevelWasLoaded " + level);
         errors = 0;
         if (level != 0 && showBanner)
-            SamsungAd.Instance().DestroyBannerAd();
+            ShowBanner(false);
     }
     public IEnumerator LoadTextres()
     {
@@ -435,13 +446,14 @@ public partial class Loader
                         //#else
                         //int version = 0;
                         //#endif
-                        maps.Add(fileName, new Map() { name = fileName, fileDate= version, url = Path.GetFileName(a) });
+                        maps.Add(fileName, new Map() { name = fileName, fileDate = version, url = Path.GetFileName(a) });
                     }
                     if (!scenes.Any(b => b.name == fileName))
-                        scenes.Insert(0, new Scene() { name = fileName});
+                        scenes.Insert(0, new Scene() { name = fileName });
                 }
             }
-        } catch (Exception ) { }
+        }
+        catch (Exception) { }
 #endif
         SetDirty(res);
     }
@@ -450,11 +462,16 @@ public partial class Loader
     public Console console;
     public void Update()
     {
+        if (KeyDebug(KeyCode.K))
+            ShowWindow(KeyboardSetup);
+
         if (Input.GetKey(KeyCode.F4) && Input.GetKeyDown(KeyCode.F6))
             console.enabled = !console.enabled;
         //if (mapWww != null)
         //    popupText = LoadingLabelMap();
         //_Integration.AddReputation(1);
+
+
         if (KeyDebug(KeyCode.T))
             StartCoroutine(SavePlayerPrefs(true));
         if (KeyDebug(KeyCode.N))
@@ -570,11 +587,11 @@ public partial class Loader
 #endif
         UpdateCenterText();
         UpdateMh();
-        
+
     }
     public void SetValue(string values = "reputation=123", string comment = "")
     {
-        DownloadAcc("setValue2", delegate(string s, bool b) { Debug.Log(s); }, true, "values", values, "comment", comment);
+        DownloadAcc("setValue2", delegate (string s, bool b) { Debug.Log(s); }, true, "values", values, "comment", comment);
     }
     public void FixedUpdate()
     {
@@ -808,21 +825,27 @@ public partial class Loader
         Setup(700, 600, "Keyboard");
         //Label(Trs("keys:").PadRight(30) + "Player1,Player2");
 
-        BeginScrollView(null,true);
+        BeginScrollView(null, true);
         GUILayoutOption h = gui.Height(32);
         skin.label.wordWrap = false;
 
         GUIStyle serverButton = guiSkins.keyboard;
-
+        if (Button("Reset Keyboard"))
+        {
+            foreach (KeyValue a in inputManger.keys)
+                a.Reset();
+            inputManger.keys.Clear();
+            inputManger.InitDict();
+        }
         gui.BeginHorizontal();
-        
+
         gui.BeginVertical();
         gui.Label("", serverButton, h);
         foreach (KeyValue a in inputManger.keys)
             gui.Label((Trs(a.descr) + ":"), serverButton, h);
         gui.EndVertical();
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 2; i++)
         {
             gui.BeginVertical();
             gui.Label("Player " + ((i % 2) + 1), serverButton, h);
@@ -830,8 +853,8 @@ public partial class Loader
                 if (i < a.keyCodeAlt.Length)
                     if (gui.Button(a.keyCodeAlt[i] + "", serverButton, h))
                         FetchKey(a, i);
-                    //else
-                    //    gui.Button(" ", h);
+            //else
+            //    gui.Button(" ", h);
             gui.EndVertical();
         }
         gui.EndHorizontal();
@@ -839,11 +862,20 @@ public partial class Loader
     }
     private void FetchKey(KeyValue a, int i)
     {
-        StartCoroutine(AddMethod(() => Input.anyKeyDown, delegate
-        {
-            a.keyCodeAlt[i] = FetchKey();
-            a.Save();
-        }));
+        print("fetch key " + a);
+        var scroll = GuiClasses.scroll;
+        ShowWindowNoBack(
+            delegate
+            {
+                Label("Press Any Key");
+                StartCoroutine(AddMethod(() => Input.anyKeyDown, delegate
+                {
+                    a.keyCodeAlt[i] = FetchKey();
+                    a.Save();
+                    ShowWindow(KeyboardSetup, SettingsWindow);
+                    GuiClasses.scroll = scroll;
+                }));
+            });
     }
 
     private KeyCode FetchKey()
@@ -852,8 +884,8 @@ public partial class Loader
             return KeyCode.None;
         for (int i = 0; i < 429; i++)
         {
-            if (Input.GetKeyDown((KeyCode) i))
-                return (KeyCode) i;
+            if (Input.GetKeyDown((KeyCode)i))
+                return (KeyCode)i;
         }
         return KeyCode.None;
 
@@ -879,7 +911,8 @@ public partial class Loader
                 return;
             }
             //text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-        } catch (Exception e) { Debug.LogError(e); }
+        }
+        catch (Exception e) { Debug.LogError(e); }
         if (_Game == null)
             StartCoroutine(StartLoadLevel(mapName));
     }
@@ -1053,7 +1086,8 @@ public partial class Loader
                         //if (isDebug)
                         //    Debug.LogError("byte unknown type " + b);
                     }
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     if (errors == 0)
                         Debug.LogError("error curType" + b + " lastType " + lastRd + " version " + vers + "\n" + e);
@@ -1074,16 +1108,16 @@ public partial class Loader
         var findMyMaps = tested == 0;
         if (findMyMaps)
             s += "&user=" + playerNamePrefixed;
-        if (isDebug)
+        if (isDebug || findMyMaps)
             s += "&r=" + Random.value;
         var w = wwwUserMaps = new WWW(s);
-        print(w.url);
         yield return w;
         if (!string.IsNullOrEmpty(w.error))
         {
             print(w.error);
             yield break;
         }
+        print(w.url + "\n" + w.text);
         userMaps.Clear();
         var ss = SplitString(w.text.Trim());
         //print(w.text);
@@ -1127,7 +1161,7 @@ public partial class Loader
         scenes.AddRange(userMaps);
         //LoadScenes();
     }
-    public bool mpCollisions {get { return online && enableCollision; }}
+    public bool mpCollisions { get { return online && enableCollision; } }
     protected void VoteMap() { }
     public WWW AproveMap(int tested = 1, int advanced = 0)
     {
@@ -1242,7 +1276,7 @@ public partial class Loader
             return new WWW(url + "?rnd=" + version);
         else
             return UnityEngine.WWW.LoadFromCacheOrDownload(url, (setting.noLevelCache ? Random.Range(0, 1000) : version));
-    }    
+    }
     public void LoadCarSkins()
     {
         res.CarSkins = new List<CarSkin>();

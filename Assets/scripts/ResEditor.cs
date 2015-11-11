@@ -16,7 +16,7 @@ public class ResEditor:bs
     public List<CustomRenderSettings> renderSettings = new List<CustomRenderSettings>();
     public bool saveTr;
     public bool autorun=true;
-    public ModelLibrary ModelLibrary;
+    //public ModelLibrary ModelLibrary;
     public TextAsset binaryStream;
     public List<string> lockassets = new List<string>();
 }

@@ -28,7 +28,7 @@ public partial class MapLoader : GuiClasses
     internal int laps = 1;
     internal int materialId;
     //internal Color color = new Color(.7f, .7f, .7f, 1);
-    public TerrainData td { get { return  terrain.terrainData; } }
+    public TerrainData td { get { return terrain.terrainData; } }
     internal float[,] oldHeightsFlat;//{get { return _TerrainHelper.oldHeights; } set { _TerrainHelper.oldHeights = value; }}
     public Transform disable;
     public override void Awake()
@@ -54,7 +54,7 @@ public partial class MapLoader : GuiClasses
             var loadRes = LoadRes("terrain");
             if (loadRes != null)
             {
-                terrain = ((GameObject) Instantiate(loadRes)).GetComponent<Terrain>();
+                terrain = ((GameObject)Instantiate(loadRes)).GetComponent<Terrain>();
                 oldTreeInstances = td.treeInstances;
                 //res.terrainBounds = terrain.collider.bounds;
             }
@@ -67,16 +67,16 @@ public partial class MapLoader : GuiClasses
     {
         //terrain.heightmapPixelError = _Loader.levelEditor != null ? 1 : 50;
         _GameSettings.gravitationFactor = _GameSettings.gravitationAntiFly = 1.5f;
-        
+
         //SetDirty(res);
     }
-    
+
 
 
     public List<Vector2> minimap = new List<Vector2>();
     static internal Bounds levelBounds { get { return _GameSettings.levelBounds; } set { _GameSettings.levelBounds = value; } }
 
-    private static  Vector2 miniMapCenter = new Vector2(.5f, .7f);
+    private static Vector2 miniMapCenter = new Vector2(.5f, .7f);
     public void UpdateMinimap()
     {
         minimap = new List<Vector2>();
@@ -108,19 +108,19 @@ public partial class MapLoader : GuiClasses
     {
         var bounds = levelBounds;
 
-        
+
         var v = (pos - bounds.min);
         //var v = _Player.transform.InverseTransformPoint(pos);
 
-        
+
         v.x /= bounds.size.x;
         v.z /= bounds.size.z;
 
         if (bounds.size.z > bounds.size.x)
-            v.x *= bounds.size.x/bounds.size.z;
+            v.x *= bounds.size.x / bounds.size.z;
         else
-            v.z *= bounds.size.z/bounds.size.x;
-        var vector2 = new Vector2(v.x, v.z)*.2f + miniMapCenter;
+            v.z *= bounds.size.z / bounds.size.x;
+        var vector2 = new Vector2(v.x, v.z) * .2f + miniMapCenter;
         return vector2;
     }
 
@@ -222,29 +222,29 @@ public partial class MapLoader : GuiClasses
     {
         get
         {
-
-            if (m_modelLib == null)
-            {
-//#if UNITY_EDITOR
-//                m_modelLib = resEditor.ModelLibrary;
-//                modelLibCur = m_modelLib.RootItem;
-//#else
-                var g = (GameObject)LoadRes("ModelLibrary");
-                if (g != null)
-                {
-                    m_modelLib = g.GetComponent<ModelLibrary>();
-                    modelLibCur = m_modelLib.RootItem;
-                }
-//#endif
-            }
-            return m_modelLib;
+            return null;
+            //if (m_modelLib == null)
+            //{
+            //    //#if UNITY_EDITOR
+            //    //                m_modelLib = resEditor.ModelLibrary;
+            //    //                modelLibCur = m_modelLib.RootItem;
+            //    //#else
+            //    var g = (GameObject)LoadRes("ModelLibrary");
+            //    if (g != null)
+            //    {
+            //        m_modelLib = g.GetComponent<ModelLibrary>();
+            //        modelLibCur = m_modelLib.RootItem;
+            //    }
+            //    //#endif
+            //}
+            //return m_modelLib;
         }
     }
-    public static string unityMap;
+    public static string unityMap="";
 
     public IEnumerator LoadUnityMap(string map)
     {
-        Debug.Log("Load unity map "+map);
+        Debug.Log("Load unity map " + map);
         unityMap = map;
         Action act = win.act;
         win.ShowWindow(delegate
@@ -252,10 +252,10 @@ public partial class MapLoader : GuiClasses
             Label(_Loader.LoadingLabelMap());
             if (!_Loader.isLoading)
                 win.ShowWindow(act, null, true);
-        },null,true);
+        }, null, true);
         if (!CanStreamedLevelBeLoaded(map))
             yield return StartCoroutine(LoadingScreen.LoadMap(map));
-        LoadLevelAdditive(map);
+        yield return Application.LoadLevelAdditiveAsync(map);
     }
     public void SetFlatTerrain(bool toggle)
     {
@@ -270,15 +270,15 @@ public partial class MapLoader : GuiClasses
         print(mainSite + s);
         WWW www = new WWW(mainSite + s);
         yield return www;
-        if (!string.IsNullOrEmpty(www.error)) { if (onError != null)onError(); yield break; }
+        if (!string.IsNullOrEmpty(www.error)) { if (onError != null) onError(); yield break; }
         BinaryReader ms = new BinaryReader(www.bytes);
         Debug.LogWarning("Loading Map " + ms.Length + " " + s);
         int version = 0;
         Dictionary<int, CurvySpline2> saveIds = new Dictionary<int, CurvySpline2>();
         //bool ingame = _Game != null;
         //HashSet<KeyValuePair<Vector3, string>> cells = new HashSet<KeyValuePair<Vector3, string>>();
-        ModelObject modelObject=null;
-        var enumType = typeof (LevelPackets);
+        ModelObject modelObject = null;
+        var enumType = typeof(LevelPackets);
         //var levelPackets = Enum.GetValues(enumType);
         LevelPackets P, oldP = LevelPackets.Unknown;
         while (ms.Position < ms.Length)
@@ -301,7 +301,8 @@ public partial class MapLoader : GuiClasses
                     }
 
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.LogError(e);
                 continue;
@@ -313,11 +314,11 @@ public partial class MapLoader : GuiClasses
                 var map = ms.ReadString();
                 yield return StartCoroutine(LoadUnityMap(map));
             }
-            
+
             if (P == LevelPackets.Spline)
                 yield return StartCoroutine(CreateSpline());
-            
-            
+
+
             if (P == LevelPackets.shape)
             {
                 yield return StartCoroutine(CreateSpline(null, true));
@@ -342,16 +343,16 @@ public partial class MapLoader : GuiClasses
                     t.eulerAngles = ms.ReadVector();
                 }
                 if (P == LevelPackets.disableTerrain)
-                    hideTerrain =  true;
+                    hideTerrain = true;
                 if (P == LevelPackets.Block)
                 {
                     var readString = ms.ReadString();
                     GameObject go;
-                    if (!modelLib)
+                    if (modelLib==null)
                     {
                         Debug.LogWarning("Model lib not loaded");
                         go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        
+
                     }
                     else if (modelLib.dict.ContainsKey(readString) && modelLib.dict[readString].gameObj != null)
                     {
@@ -367,7 +368,7 @@ public partial class MapLoader : GuiClasses
                         Debug.LogWarning(readString + " not found " + dict.Count);
                     }
                     go.name = readString;
-                    modelObject = InitModel(go, readString);                    
+                    modelObject = InitModel(go, readString);
                     modelObject.transform.position = ms.ReadVector();
                     modelObject.transform.eulerAngles = ms.ReadVector();
                     modelObject.transform.localScale = ms.ReadVector();
@@ -389,10 +390,10 @@ public partial class MapLoader : GuiClasses
                 if (P == LevelPackets.shapeMaterial)
                 {
                     string readString = ms.ReadString();
-                    spline.thumb = new Thumbnail() { url = Regex.Replace(readString, @"https?://server.critical-missions.com/tm/|https?://tmrace.net/tm/","") };
+                    spline.thumb = new Thumbnail() { url = Regex.Replace(readString, @"https?://server.critical-missions.com/tm/|https?://tmrace.net/tm/", "") };
                     //Debug.LogWarning(readString);
                 }
-                if( P == LevelPackets.textureTile)
+                if (P == LevelPackets.textureTile)
                     spline.thumb.material.mainTextureScale = ms.ReadVector();
                 if (P == LevelPackets.AntiFly)
                 {
@@ -464,13 +465,14 @@ public partial class MapLoader : GuiClasses
                 if (P == LevelPackets.disableJump)
                     _Loader.curSceneDef.disableJump = true;
 
-            } catch (Exception e) { Debug.LogError(e); }
+            }
+            catch (Exception e) { Debug.LogError(e); }
         }
         print("Map Version " + version);
         if (onLoaded != null)
             onLoaded();
         userMapSucces = true;
-        UpdateTerrain(null, true, _Loader.levelEditor==null);
+        UpdateTerrain(null, true, _Loader.levelEditor == null);
         if (!_Loader.levelEditor)
             Optimize2();
 
@@ -496,7 +498,7 @@ public partial class MapLoader : GuiClasses
     }
 
     protected void Combine() { }
-    
+
     public void Optimize2()
     {
         var findObjectsOfType = FindObjectsOfType(typeof(ModelObject));
@@ -506,7 +508,7 @@ public partial class MapLoader : GuiClasses
             a.gameObject.isStatic = true;
             a.transform.parent = t;
         }
-        
+
         StaticBatchingUtility.Combine(t.gameObject);
 
     }
@@ -545,13 +547,13 @@ public partial class MapLoader : GuiClasses
     //            StaticBatchingUtility.Combine(t.gameObject);
     //    }
     //}
-    public static ModelObject InitModel(GameObject go,string s)
+    public static ModelObject InitModel(GameObject go, string s)
     {
         var sgo = go.AddComponent<ModelObject>();
         go.name = s;
         //print(s);
         //if (s.StartsWith("Curb-") || s.StartsWith("Sidewalk1") || s.StartsWith("Sidewalk2") || s.StartsWith("Sidewalk3"))
-            //c.convex = true;
+        //c.convex = true;
         if (_Loader.levelEditor)
             go.AddComponent<MeshOutline>();
 
@@ -562,20 +564,20 @@ public partial class MapLoader : GuiClasses
         }
         sgo.renderer.gameObject.layer = Layer.block;
         sgo.oldMaterials = sgo.renderer.sharedMaterials;
-        
+
 
         if (s.Contains("Turbo"))
             foreach (var a in go.GetComponentsInChildren<Transform>())
                 a.tag = Tag.Speed;
         sgo.name2 = s;
         //if (g.renderer != null)
-            //g.oldMaterials = g.renderer.sharedMaterials;
+        //g.oldMaterials = g.renderer.sharedMaterials;
         return sgo;
     }
 
     public Transform SetCheckPoint(Vector3 pos)
     {
-        var ch = (Transform)Instantiate(res.CheckPoint,pos,Quaternion.identity);
+        var ch = (Transform)Instantiate(res.CheckPoint, pos, Quaternion.identity);
         //ch.name = res.CheckPoint.name;
         //ch.position = segment.Position;
         //ch.forward = fv;
@@ -688,7 +690,7 @@ public partial class MapLoader : GuiClasses
             Debug.LogWarning("Hide Terrain");
             hideTerrain = true;
         }
-        
+
         if (before)
             segment = spline.Add(false, null);
         else
@@ -696,7 +698,7 @@ public partial class MapLoader : GuiClasses
 
         if (after != null && start == null && _Loader.levelEditor != null && !shapeEditor)
             SetStartPoint(after);
-        
+
         segment.Position = point;
         if (insert)
             segment.spls = new List<CurvySpline2>(after.spls);
@@ -720,7 +722,7 @@ public partial class MapLoader : GuiClasses
         segment.swirl = swirl;
         spline.Refresh();
         UpdateSwirl2();
-        
+
     }
     //public List<CurvySpline2> selectedShapes = new List<CurvySpline2>();
     public List<CurvySpline2> shapes = new List<CurvySpline2>();
@@ -729,9 +731,9 @@ public partial class MapLoader : GuiClasses
 
     internal CurvySpline2 spline;
     private float[,] heights;
-    private float[, ,] alphas;
+    private float[,,] alphas;
 
-    
+
 
     public List<CurvySpline2> splines = new List<CurvySpline2>();
     public float miny = MaxValue;
@@ -750,10 +752,10 @@ public partial class MapLoader : GuiClasses
 
     private bool[,] used;
     private bool warkingShown;
-    
-    
+
+
     //private Terrain m_terrain;
-    
+
     //{
     //    get
     //    {

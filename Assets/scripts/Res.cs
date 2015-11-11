@@ -169,7 +169,7 @@ public class Res :MonoBehaviour
     public Texture2D captureFlag;
     public string credits = "";
     public Texture2D scratches;
-
+    public TextAsset modelLib;
 }
 //[Serializable]
 public class OutlineDict

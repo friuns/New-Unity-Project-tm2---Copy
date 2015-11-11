@@ -328,7 +328,15 @@ public class GuiClasses : bs
         gui.EndHorizontal();
         return button;
     }
-    
+    public string TextField(string Name, string input)
+    {
+        gui.BeginHorizontal();
+        Label(Name);
+        var a = gui.TextField(input);
+        gui.EndHorizontal();
+        return a;
+    }
+
     public bool Button(string s, bool expandWidth = true, int font = 14, bool bold = false, Texture2D texture = null, bool wrap = false)
     {
         var guiStyle = replacementStyle == null ? skin.button : replacementStyle;
