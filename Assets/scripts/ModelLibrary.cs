@@ -13,13 +13,13 @@ using Object = UnityEngine.Object;
 
 public class ModelLibrary
 {
-    public ModelItem RootItem;
+    public ModelItem RootItem = new ModelItem();
 
     public List<ModelFile> models = new List<ModelFile>();
 
     private Dictionary<string, ModelFile> m_dict;
 
-    public Dictionary<string, ModelFile> dict
+    internal Dictionary<string, ModelFile> dict
     {
         get
         {
@@ -37,21 +37,21 @@ public class ModelLibrary
     }
 
 }
-  
+
 public class ModelFile
 {
     internal int usedCount;
-    public float usedCountSqrt { get { return bs.setting.Popularity.TryGet(path, 0); } }
+    internal float usedCountSqrt { get { return bs.setting.Popularity.TryGet(path, 0); } }
     public string name;
     public string path;
-    public GameObject gameObj
+    internal  GameObject gameObj
     {
         get
         {
             var replace = path.Substring(0, path.LastIndexOf('.')).Replace('\\', '/');
             //Path.GetFileNameWithoutExtension(path).Replace('\\', '/');
             if (m_gameObj == null)
-                if (bs._Loader.levelEditor || !bs.isDebug||true)
+                if (bs._Loader.levelEditor || !bs.isDebug || true)
                 {
                     m_gameObj = Instantiate(LoadPrefab(replace));
                     m_gameObj.transform.parent = bs._MapLoader.disable;
@@ -91,7 +91,7 @@ public class ModelFile
                             r.sharedMaterials = sharedMaterials;
                         }
                         var l2 = new LOD(0f, rs);
-                        lod.SetLODS(new[] {l, l2});
+                        lod.SetLODS(new[] { l, l2 });
                         lod.RecalculateBounds();
                     }
                     m_gameObj.transform.parent = bs._MapLoader.disable;
@@ -114,12 +114,12 @@ public class ModelFile
 
     private static GameObject LoadPrefab(string replace)
     {
-        GameObject loadPrefab = (GameObject)bs.LoadRes(replace);        
+        GameObject loadPrefab = (GameObject)bs.LoadRes(replace);
         return loadPrefab;
     }
     private GameObject m_gameObj;
     private Texture2D m_thumb;
-    public Texture2D thumb
+    internal Texture2D thumb
     {
         get
         {

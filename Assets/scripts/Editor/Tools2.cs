@@ -67,7 +67,7 @@ public class Tools2 : Editor
             MoveDirectory(a, b);
         else
         {
-            if(File.Exists(b))
+            if (File.Exists(b))
                 File.Delete(b);
             File.Move(a, b);
         }
@@ -83,20 +83,20 @@ public class Tools2 : Editor
         }
     }
 
-   
+
 
     [MenuItem("RTools/Move Assets")]
     public static void MoveAssets()
     {
-       
-        foreach(var a in Selection.objects)
+
+        foreach (var a in Selection.objects)
         {
             var assetPath = AssetDatabase.GetAssetPath(a);
             //try
             //{
-                Directory.CreateDirectory("backup/" + Path.GetDirectoryName(assetPath));
-                FileMove(assetPath, "backup/" + assetPath);
-                FileMove(assetPath + ".meta", "backup/" + assetPath + ".meta");
+            Directory.CreateDirectory("backup/" + Path.GetDirectoryName(assetPath));
+            FileMove(assetPath, "backup/" + assetPath);
+            FileMove(assetPath + ".meta", "backup/" + assetPath + ".meta");
             //} catch (IOException e)
             //{
             //    print.Log("move failed " + assetPath);
@@ -104,17 +104,17 @@ public class Tools2 : Editor
         }
         foreach (var assetPath in resEditor.lockassets)
         {
-            
-                //try
-                //{
-                    Directory.CreateDirectory(Path.GetDirectoryName(assetPath));
-                    FileMove("backup/" + assetPath, assetPath);
-                    FileMove("backup/" + assetPath + ".meta", assetPath + ".meta");
-                //} catch (IOException e)
-                //{
-                //    print.Log("move failed "+assetPath);
-                //}
-            
+
+            //try
+            //{
+            Directory.CreateDirectory(Path.GetDirectoryName(assetPath));
+            FileMove("backup/" + assetPath, assetPath);
+            FileMove("backup/" + assetPath + ".meta", assetPath + ".meta");
+            //} catch (IOException e)
+            //{
+            //    print.Log("move failed "+assetPath);
+            //}
+
         }
     }
 
@@ -132,7 +132,7 @@ public class Tools2 : Editor
 
             if (File.Exists(insert))
             {
-                if (new FileInfo(insert).Length < 10*1024)
+                if (new FileInfo(insert).Length < 10 * 1024)
                 {
                     File.Delete(path.Substring(0, path.Length - 4) + " LOD 0.prefab");
                     File.Delete(path.Substring(0, path.Length - 4) + " LOD 1.prefab");
@@ -144,7 +144,7 @@ public class Tools2 : Editor
                 }
             }
         }
-        
+
         print.Log("deselected: " + j);
         Selection.objects = gameObjects.Where(a => a != null).Cast<Object>().ToArray();
     }
@@ -183,14 +183,14 @@ public class Tools2 : Editor
     //    Selection.activeGameObject.AddComponent<MeshFilter>().sharedMesh= Selection.activeGameObject.GetComponentInChildren<MeshFilter>().sharedMesh;
     //}
     private static ModelLibrary modelLibrary;
-    [MenuItem("RTools/AddToLibrary")]
+    [MenuItem("RTools/AddToLibrary", false, -1)]
     public static void AddToLibrary()
     {
         //resEditor.ModelLibrary.RootItem.dirs.Clear();
         //resEditor.ModelLibrary.RootItem.files.Clear();
         //resEditor.ModelLibrary.models.Clear();
         modelLibrary = new ModelLibrary();
-        
+
         foreach (var a in Selection.objects)
         {
             var modelItem = new ModelItem();
@@ -199,9 +199,7 @@ public class Tools2 : Editor
             modelItem.Name = Path.GetFileName(path);
             GetDirs(path, modelItem);
         }
-        //resEditor.ModelLibrary.models = resEditor.ModelLibrary.models.Where(a => a.gameObj != null).ToList();
-        //EditorUtility.SetDirty(modelLibrary);
-        //resEditor.ModelLibrary.RootItem
+        File.WriteAllText("Assets/modelLibrary.json", LitJson.JsonMapper.ToJson(modelLibrary));
     }
     public static void GetDirs(string path, ModelItem modelItem)
     {
@@ -229,7 +227,6 @@ public class Tools2 : Editor
             modelLibrary.models.Add(modelFile);
             if (modelItem.FolderTexture == null)
                 modelItem.FolderTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(p, typeof(Texture2D));
-            ;
         }
     }
     [MenuItem("RTools/CleanGrass")]
@@ -283,8 +280,8 @@ public class Tools2 : Editor
     {
         Terrain ter = Selection.activeGameObject.GetComponent<Terrain>();
         var td = ter.terrainData;
-        float[, ,] alph = td.GetAlphamaps(0, 0, td.alphamapWidth, td.alphamapHeight);
-        float[, ,] alph2 = new float[td.alphamapWidth / 2, td.alphamapWidth / 2, td.alphamapLayers];
+        float[,,] alph = td.GetAlphamaps(0, 0, td.alphamapWidth, td.alphamapHeight);
+        float[,,] alph2 = new float[td.alphamapWidth / 2, td.alphamapWidth / 2, td.alphamapLayers];
         for (int x = 0; x < td.alphamapWidth; x += 2)
         {
             for (int y = 0; y < td.alphamapHeight; y += 2)
@@ -314,7 +311,8 @@ public class Tools2 : Editor
                 try
                 {
                     alph2[x / 2, y / 2] = alph[x, y];
-                } catch (Exception) { }
+                }
+                catch (Exception) { }
             }
         }
         var old = td.size;
