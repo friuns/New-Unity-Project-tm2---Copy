@@ -11,6 +11,7 @@ public class Settings { }
 public class ResLoader : bs
 {
     //public bool enableMatchTime = true;
+
     public bool changeSkin;
     public int lerpFactorPos = 3;
     public int lerpFactorRot = 3;

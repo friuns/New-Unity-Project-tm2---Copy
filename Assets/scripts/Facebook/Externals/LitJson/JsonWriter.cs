@@ -1,3 +1,4 @@
+#pragma warning disable CS3021 // Type or member does not need a CLSCompliant attribute because the assembly does not have a CLSCompliant attribute
 #region Header
 /**
  * JsonWriter.cs
@@ -9,7 +10,6 @@
 #endregion
 
 
-#if !UNITY_FLASH
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -366,7 +366,7 @@ namespace LitJson
             context.ExpectingValue = false;
         }
 
-        //[CLSCompliant(false)]
+        [CLSCompliant(false)]
         public void Write (ulong number)
         {
             DoValidation (Condition.Value);
@@ -462,4 +462,3 @@ namespace LitJson
         }
     }
 }
-#endif

@@ -328,13 +328,20 @@ public class GuiClasses : bs
         gui.EndHorizontal();
         return button;
     }
-    public string TextField(string Name, string input)
+    public string TextArea(string Name, string input)
     {
         gui.BeginHorizontal();
         Label(Name);
-        var a = gui.TextField(input);
+        var a = gui.TextArea(input);
         gui.EndHorizontal();
         return a;
+    }
+
+    public static void SelectAll(int len)
+    {
+        TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+        te.pos = 0; //set cursor position
+        te.selectPos = len; //se
     }
 
     public bool Button(string s, bool expandWidth = true, int font = 14, bool bold = false, Texture2D texture = null, bool wrap = false)

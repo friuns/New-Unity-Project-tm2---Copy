@@ -75,7 +75,7 @@ public class Tag
     public const string Speed = "Speed";
     public const string engineOff = "engineOff";
     public const string Road = "Road";
-    public const string Dirt = "Dirt";
+    public const string Dirt = "dirt";
     public const string Start = "Start";
     public const string HitBox = "HitBox";
     public const string shield= "Shield";

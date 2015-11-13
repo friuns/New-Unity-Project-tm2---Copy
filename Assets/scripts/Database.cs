@@ -12,7 +12,9 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 public enum CountryCodes { fi, us, ru, ua, cz, de, es, nl, tr, no }
-public enum EventGroup { Other,SiteOld,
+public enum EventGroup
+{
+    Other, SiteOld,
     Maps,
     Fps,
     playedTime,
@@ -26,13 +28,13 @@ public enum EventGroup { Other,SiteOld,
 public class Database : MonoBehaviour
 {
     //public List<Replay> Replays = new List<Replay>();
-    
+
 }
 
 [Flags]
 public enum WeaponEnum
 {
-    machinegun =1, freezer = 2, fire = 4
+    machinegun = 1, freezer = 2, fire = 4
 }
 
 public enum RoadType { Road, Dirt, Speed }
@@ -78,7 +80,7 @@ public class Thumbnail
                 if (t.format == TextureFormat.ARGB32)
                     m.shader = bs.res.transparmentCutout;
                 //Debug.LogWarning("Loaded ");
-            }    
+            }
         }
     }
 }
@@ -126,22 +128,22 @@ public class MyProperty
         this.monoName = index;
         if (v is bool)
         {
-            boolValue = (bool) v;
+            boolValue = (bool)v;
             et = ET.boola;
         }
         else if (v is Color)
         {
-            colorValue = (Color) v;
+            colorValue = (Color)v;
             et = ET.color;
         }
         else if (v is int)
         {
-            intValue = (int) v;
+            intValue = (int)v;
             et = ET.inta;
         }
         else if (v is float)
         {
-            floatValue = (float) v;
+            floatValue = (float)v;
             et = ET.floata;
         }
         else if (v is AnimationCurve)
@@ -168,7 +170,7 @@ public class MyProperty
             return intValue;
         else
         {
-            Debug.Log("Value not found "+et);
+            Debug.Log("Value not found " + et);
             return null;
         }
     }
@@ -196,7 +198,7 @@ public class MyProperty
 //        this.n2 = n2;
 //        a = camera.WorldToScreenPoint(n1.Position);
 //        b = camera.WorldToScreenPoint(n2.Position);
-        
+
 //        segment = n1;
 //        spline = n1.Spline2;
 
@@ -210,7 +212,7 @@ public class MyProperty
 //        //float f;
 //        //pl.Raycast(camera.ScreenToWorldPoint(mpos + Vector3.forward), out f);
 
-        
+
 //        Vector3 project = CurvySpline2.ProjectPointLine2(mpos, a, b);
 //        var p1 = pivot = camera.ScreenToWorldPoint(mpos + Vector3.forward * project.z);
 //        var p2 = camera.ScreenToWorldPoint(project);
@@ -236,14 +238,14 @@ public class PosVel
     public Vector3 pos;
     public Quaternion rot;
     public bool left;
-    public bool up; 
+    public bool up;
     public float groundTime;
     public Vector3 vel;
     public Vector3 angVel;
     public bool engineOff;
     //internal float timeElapsed;
     internal Vector3 camPos;
-    internal Quaternion camRot; 
+    internal Quaternion camRot;
     public bool right;
     public float mouserot;
     public float skid;
@@ -254,7 +256,7 @@ public class PosVel
 
 public enum SGameType { VsFriends, VsPlayers, SplitScreen, Replay, Clan, Multiplayer, Cops }
 
-public enum Quality2 { Lowest, Low, Medium, High,Ultra }
+public enum Quality2 { Lowest, Low, Medium, High, Ultra }
 [Serializable]
 public class Scene
 {
@@ -271,13 +273,20 @@ public class Scene
     public int nitro;
     public int j;
     public int mapId;
-    public bool played { get { return bs.PlayerPrefsGetBool("played" + name); } set { bs.PlayerPrefsSetBool("played" + name, value); } }    
+    public bool played { get { return bs.PlayerPrefsGetBool("played" + name); } set { bs.PlayerPrefsSetBool("played" + name, value); } }
     //internal string levelName;
+    private Texture2D m_texture;
+    private bool loaded2;
     public Texture2D texture
     {
         get
         {
-            return (Texture2D)bs.LoadRes("MapTextures/" + name);
+            if (!loaded2)
+            {
+                m_texture= (Texture2D)bs.LoadRes("MapTextures/" + name);
+                loaded2 = true;
+            }
+            return m_texture;
             //if (texture2D == null) print("Res not found " + name);
         }
     }
@@ -287,8 +296,8 @@ public class Scene
     public bool userMap;
     public float rating;
     public Vector3 FinnishPos;
-    public MapSets mapSets= new MapSets();
-    internal bool disableJump=false;
+    public MapSets mapSets = new MapSets();
+    internal bool disableJump = false;
 }
 public enum Difficulty { Easy, Normal, Hard }
 public static class Levels
@@ -316,9 +325,9 @@ public static class RD
     public const int color = 10;
     public const int avatarUrl = 11;
     public const int score = 12;
-    public const int playerName=13;
-    public const int clan=14;
-    public const int rank= 15;
+    public const int playerName = 13;
+    public const int clan = 14;
+    public const int rank = 15;
 }
 
 [Serializable]
@@ -574,7 +583,7 @@ public class BinaryReader : MemoryStream
         return b;
     }
 
-    
+
 }
 public enum LevelPackets
 {
@@ -607,7 +616,7 @@ public enum LevelPackets
     unityMap,
     disableJump,
     FlyingModel,
-    flatTerrain,Unknown
+    flatTerrain, Unknown
 }
 public static class Ext
 {
@@ -648,7 +657,7 @@ public static class Ext
         return dict[key] = def;
     }
 
- }
+}
 public enum ModType { user = 0, tester = 1, mod = 5, admin = 10 }
 
 public struct EvalCor
@@ -703,7 +712,7 @@ public enum props
     dmLockForward,
     enableMatchTimeLimit, enableCollision, timeLimit,
     randomSpawn,
-    airResistence,nitro,
+    airResistence, nitro,
     rotationFactor
 }
 
@@ -731,7 +740,7 @@ public class AccessTime<T>
             accessTime = Time.frameCount;
         }
     }
-    private int accessTime =-999;
+    private int accessTime = -999;
     public bool needUpdate
     {
         get

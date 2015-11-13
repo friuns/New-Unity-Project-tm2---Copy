@@ -35,9 +35,9 @@ public partial class LevelEditor
     public void ModeViewStart()
     {
         folderStype = buttonSetup(win.skinDefault.button, 130);
-        if (modelLib!=null)
+        if (modelLib != null)
         {
-            var gameObj = modelLib.models[0].gameObj;
+            var gameObj = modelLib.models.First().gameObj;
             sgo = InitModel((GameObject)Instantiate(gameObj), gameObj.name);
         }
         grid = new GameObject("Grid").AddComponent<Grid>();
@@ -195,17 +195,17 @@ public partial class LevelEditor
     {
         if (!sgo.name.StartsWith("coin"))
             mapSets.usedAdvancedTools = true;
-        var g = lastSgo = (ModelObject) Instantiate(sgo, Position, sgo.transform.rotation);
+        var g = lastSgo = (ModelObject)Instantiate(sgo, Position, sgo.transform.rotation);
         g.name = sgo.name;
         g.ResetColor();
-        g.initPos = sgo.transform.position; 
+        g.initPos = sgo.transform.position;
     }
-    public Vector3  boundsEx(Vector3 a,Bounds b)
+    public Vector3 boundsEx(Vector3 a, Bounds b)
     {
         var s = b.size;
-        
+
         Vector3 vector3 = new Vector3(initPos.x % s.x, initPos.y % s.y, initPos.z % s.z);
-        a -= vector3/2;
+        a -= vector3 / 2;
         return new Vector3(((int)(a.x / s.x)) * s.x, ((int)(a.y / s.y)) * s.y, ((int)(a.z / s.z)) * s.z) + vector3;
     }
     private Vector3 initPos;
@@ -264,7 +264,7 @@ public partial class LevelEditor
     GUIStyle folderStype;
     public static IEnumerable<ModelFile> GetFiles(ModelItem cur)
     {
-        foreach (var a in cur.files)
+        foreach (var a in cur.files.OrderByDescending(a => a.usedCountSqrt))
             yield return a;
         foreach (var a in cur.dirs)
             foreach (var b in GetFiles(a))

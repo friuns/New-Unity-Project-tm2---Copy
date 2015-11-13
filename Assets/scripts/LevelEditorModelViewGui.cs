@@ -90,7 +90,7 @@ public partial class LevelEditor
             if (!searchEmpty)
                 enumerable = enumerable.Where(a => sr.Any(b => a.name.ToLower().Contains(b)));
 
-            foreach (var a in enumerable.OrderByDescending(a => a.usedCountSqrt).Take(32 * loadI))
+            foreach (var a in enumerable.Take(32 * loadI))
             {
                 splitGui(j++);
                 DrawFile(a);

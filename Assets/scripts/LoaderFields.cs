@@ -108,7 +108,7 @@ public partial class Loader
         }
     }
     public Scene curScene { get { return scenes.FirstOrDefault(a => a.name.ToLower() == mapName.ToLower()); } }
-    
+
     private int lastRd;
     private int curredRd;
     public bool dontUploadReplay;
@@ -196,7 +196,7 @@ public partial class Loader
     public TextAsset scenesTxt;
     public GUITexture fullScreen;
     private Color m_fullScreenColor;
-    private Color fullScreenColor { set { if (value != m_fullScreenColor)  m_fullScreenColor = fullScreen.color = value; } }
+    private Color fullScreenColor { set { if (value != m_fullScreenColor) m_fullScreenColor = fullScreen.color = value; } }
     internal static int errors;
     private static float oldTime;
     protected List<string> clanMembers = new List<string>();
@@ -206,7 +206,7 @@ public partial class Loader
 
     public bool isLoading
     {
-        get { return mapWww != null && !mapWww.isDone; }
+        get { return mapWww != null && !mapWww.isDone && string.IsNullOrEmpty(mapWww.error); }
     }
     [Flags]
     public enum ReplayFlags { dm = 1, stunts = 2, online = 4, rain = 8, bombcar = 16 }
@@ -239,5 +239,5 @@ public partial class Loader
     public bool bombCar;
     public List<CarSkin> CarSkins { get { if (res.CarSkins.Count == 0) LoadCarSkins(); return res.CarSkins; } }
     public float nitro;
-    
+
 }

@@ -21,14 +21,13 @@ public class LoadingScreen : bs
     public static bool block;
     public static string newVersionAvaibleText = "Please Update Game at http://trackracingonline.com/";
     private string error;
-    public static string folderPath="./";
+    public static string folderPath = "./";
     public static string folderUrl = "file://";
     internal static string loadingText = ".you can download free android version here!\n<color=#00F2FF>http://trackracingonline.com/</color>";
     public static Dictionary<string, string> webSettings = new Dictionary<string, string>();
     public static Dictionary<string, string> cheats = new Dictionary<string, string>();
     public static string[] tips = new string[] { "none" };
     public static bool mapsLoaded;
-    private static Map packageMap;
 #if old
     public void Start()
     {
@@ -137,7 +136,7 @@ public class LoadingScreen : bs
     public static string randomTip { get { return tips[(int)Time.time / 10 % tips.Length].Replace("\\r", "\r").Replace("\\n", "\n"); } }
     public static string[] SplitSpecial(string s)
     {
-        
+
         List<string> ss = new List<string>();
         int io = 0;
         for (int i = 0; i < 100; i++)
@@ -169,12 +168,13 @@ public class LoadingScreen : bs
     public static IEnumerator StartLoadLevels()
     {
         if (mapsLoaded) yield break;
-        
+
         mapsLoaded = true;
         try
         {
             InitFolder();
-        } catch (Exception e2)
+        }
+        catch (Exception e2)
         {
             print(e2.Message);
         }
@@ -202,7 +202,7 @@ public class LoadingScreen : bs
 
         if (!string.IsNullOrEmpty(txt))
         {
-//#if !UNITY_FLASH
+            //#if !UNITY_FLASH
             //string[] ss = www.text.Split(new string[] { "##" }, StringSplitOptions.None);
             string[] ss = SplitSpecial(txt);
             //print(ss.Length);
@@ -224,7 +224,7 @@ public class LoadingScreen : bs
                     List<string> t = new List<string>();
                     foreach (string a in SplitString(webSettings["tips"]))
                     {
-                        string[] ar = new string[] {"(android)", "(pc)"};
+                        string[] ar = new string[] { "(android)", "(pc)" };
                         foreach (string b in ar)
                         {
                             var i = a.IndexOf(b, StringComparison.Ordinal);
@@ -241,7 +241,8 @@ public class LoadingScreen : bs
                     }
 
                     tips = t.ToArray();
-                } catch (Exception e) { Debug.LogError(e); }
+                }
+                catch (Exception e) { Debug.LogError(e); }
             }
 
             SiteBlockCheck(Application.absoluteURL);
@@ -258,7 +259,7 @@ public class LoadingScreen : bs
                     if (version.ToString().StartsWith(a))
                         block = newVersionAvaible = true;
                 }
-            
+
             try
             {
                 foreach (var s in SplitString(webSettings["cheats"]))
@@ -266,7 +267,8 @@ public class LoadingScreen : bs
                     var a = s.Split('=');
                     cheats[a[0].Trim().ToLower()] = a[1].Trim();
                 }
-            } catch (Exception e) { Debug.LogWarning(e); }
+            }
+            catch (Exception e) { Debug.LogWarning(e); }
 
 
             try
@@ -280,7 +282,7 @@ public class LoadingScreen : bs
                 if (webSettings.ContainsKey("backup"))
                     setting.backups = SplitString(webSettings["backup"]).Select(a => a.Replace("https://", http + "://")).ToArray();
                 else
-                    setting.backups = new[] {mainSite};
+                    setting.backups = new[] { mainSite };
 
                 var split = SplitString(webSettings["versions"]);
                 for (int i = 0; i < split.Length; i++)
@@ -292,16 +294,17 @@ public class LoadingScreen : bs
                         loadingText = unescape(split[i + 3]);
                     }
                 }
-            } catch (Exception e) { Debug.LogWarning(e); }
+            }
+            catch (Exception e) { Debug.LogWarning(e); }
 
-//#endif
+            //#endif
         }
-      
+
         if (newVersionAvaible && _Loader != null)
         {
             win.ShowWindow(delegate
             {
-                win.Setup(600,300);
+                win.Setup(600, 300);
                 win.skin.button.wordWrap = true;
                 if (GUILayout.Button(newVersionAvaibleText, GUILayout.MinHeight(100)))
                     Application.OpenURL(newVersionAvaibleText.Substring(newVersionAvaibleText.IndexOf("http", System.StringComparison.Ordinal)));
@@ -335,7 +338,8 @@ public class LoadingScreen : bs
             PlayerPrefs.SetString("backup", text);
             if (maps.Count > 3)
                 setting.maps = maps;
-        } catch (Exception e) { LogEvent("Failed getMaps"); Debug.LogError(e); }
+        }
+        catch (Exception e) { LogEvent("Failed getMaps"); Debug.LogError(e); }
     }
 
     public static void SiteBlockCheck(string url)
@@ -347,7 +351,7 @@ public class LoadingScreen : bs
                     block = newVersionAvaible = true;
             }
     }
-    
+
     private static void InitFolder()
     {
         if (Application.platform == RuntimePlatform.LinuxPlayer)
@@ -362,13 +366,15 @@ public class LoadingScreen : bs
             {
                 print("initing folder");
                 InitFolder("/sdcard/external_sd/tmrace/");
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 print(e.Message);
                 try
                 {
                     InitFolder("/sdcard/tmrace/");
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     InitFolder("/tmrace/");
                 }
@@ -387,13 +393,13 @@ public class LoadingScreen : bs
 #endif
     }
     public static IEnumerator LoadMap(string package)
-    {        
-        packageMap = Loader.maps[package];
+    {
+        var packageMap = Loader.maps[package];
         www = null;
         if (android || standAlone)
         {
             print(folderUrl + GetFileName(packageMap.url));
-            www = Loader.WWW(folderUrl + GetFileName(packageMap.url), packageMap.fileDate);
+            www = Loader.WwwLoadFromCacheOrDownload(folderUrl + GetFileName(packageMap.url), packageMap.fileDate);
             yield return www;
             Debug.Log(www.error);
         }
@@ -404,7 +410,7 @@ public class LoadingScreen : bs
             {
                 var url = a + GetFileName(packageMap.url);
                 print(url);
-                www = Loader.WWW(url, packageMap.fileDate);
+                www = Loader.WwwLoadFromCacheOrDownload(url, packageMap.fileDate);
                 yield return www;
 
                 if (string.IsNullOrEmpty(www.error) || CanStreamedLevelBeLoaded(package)) break;
@@ -416,6 +422,6 @@ public class LoadingScreen : bs
         if (package.StartsWith("asset"))
             Debug.LogWarning("obsolete AssetBundleSet");
         print("Loaded AssetBundle:" + www.assetBundle);
-        
+
     }
 }

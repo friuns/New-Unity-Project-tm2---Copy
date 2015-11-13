@@ -222,7 +222,14 @@ public partial class MapLoader : GuiClasses
     {
         get
         {
-            return null;
+
+
+            if (m_modelLib == null && (Application.isEditor || _Loader.resLoaded2))
+            {
+                m_modelLib = ModelLibrary.Load((LoadRes<TextAsset>("lib.txt") ?? res.modelLib).text);
+                modelLibCur = m_modelLib.RootItem;
+            }
+            return m_modelLib;
             //if (m_modelLib == null)
             //{
             //    //#if UNITY_EDITOR
@@ -240,7 +247,8 @@ public partial class MapLoader : GuiClasses
             //return m_modelLib;
         }
     }
-    public static string unityMap="";
+    public static string unityMap = "";
+
 
     public IEnumerator LoadUnityMap(string map)
     {
@@ -250,13 +258,83 @@ public partial class MapLoader : GuiClasses
         win.ShowWindow(delegate
         {
             Label(_Loader.LoadingLabelMap());
-            if (!_Loader.isLoading)
-                win.ShowWindow(act, null, true);
+            //if (!_Loader.isLoading)
+
         }, null, true);
-        if (!CanStreamedLevelBeLoaded(map))
-            yield return StartCoroutine(LoadingScreen.LoadMap(map));
-        yield return Application.LoadLevelAdditiveAsync(map);
+
+        var http = map.ToLower().StartsWith("http");
+
+        if (http)
+        {
+            var mapNAme = Path.GetFileNameWithoutExtension(map);
+            if (!Application.CanStreamedLevelBeLoaded(mapNAme))
+            {
+                www = Loader.WwwLoadFromCacheOrDownload(map, 0);
+                yield return www;
+                if (!string.IsNullOrEmpty(www.error))
+                {
+                    var url = Loader._MainSite + "/cops/mapUpload.php?url=" + map;
+                    print(url);
+                    www = Loader.WwwLoadFromCacheOrDownload(url, 0);
+                    yield return www;
+                }
+                print(www.assetBundle);
+            }
+            var trs = FindObjectsOfType<Transform>();
+            yield return Application.LoadLevelAdditiveAsync(mapNAme);
+            SetupLevel(trs);
+        }
+        else
+        {
+            if (!CanStreamedLevelBeLoaded(map))
+                yield return StartCoroutine(LoadingScreen.LoadMap(map));
+            yield return Application.LoadLevelAdditiveAsync(map);
+        }
+        win.ShowWindow(act, null, true);
     }
+
+    private void SetupLevel(Transform[] trs)
+    {
+        try
+        {
+
+            var level = new GameObject("level").transform;
+
+            foreach (var a in FindObjectsOfType<Transform>().Where(b => trs.All(a => a != b)))
+            {
+                if (a.parent == null)
+                    a.parent = level;
+                if (a.gameObject.layer > 7 || a.gameObject.layer == 0)
+                    a.gameObject.layer = Layer.level;
+                a.gameObject.tag = "Untagged";
+
+
+                if (a.rigidbody || a.light && a.light.type == LightType.Directional || a.camera || a.name.ToLower() == "collision_wall")
+                    Destroy(a.gameObject);
+                if (a.GetComponent<Terrain>())
+                {
+                    a.gameObject.layer = Layer.terrain;
+                    a.gameObject.name = "Terrain";
+                    terrain = a.GetComponent<Terrain>();
+                }
+                //else if (a.childCount == 0 && a.collider && (!a.renderer || !a.renderer.enabled) && !a.GetComponent<Terrain>())
+                //    Destroy(a.gameObject);
+
+                //foreach (var b in a.GetComponentsInChildren<Collider>())
+                //    b.sharedMaterial = ph;
+
+
+            }
+            //foreach (var a in FindObjectsOfType<Camera>())
+            //    Destroy(a.gameObject);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+    }
+
+
     public void SetFlatTerrain(bool toggle)
     {
         flatTerrain = toggle;
@@ -348,7 +426,7 @@ public partial class MapLoader : GuiClasses
                 {
                     var readString = ms.ReadString();
                     GameObject go;
-                    if (modelLib==null)
+                    if (modelLib == null)
                     {
                         Debug.LogWarning("Model lib not loaded");
                         go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -365,7 +443,7 @@ public partial class MapLoader : GuiClasses
                     else
                     {
                         go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        Debug.LogWarning(readString + " not found " + dict.Count);
+                        Debug.LogWarning(readString + " not found ");
                     }
                     go.name = readString;
                     modelObject = InitModel(go, readString);
@@ -620,7 +698,7 @@ public partial class MapLoader : GuiClasses
         //print("Spline Created");
         yield return null;
     }
-    internal WWW www;
+    internal WWW www { get { return Loader.mapWww; } set { Loader.mapWww = value; } }
     internal void SetStartPoint(CurvySplineSegment s)
     {
         if (start == null)

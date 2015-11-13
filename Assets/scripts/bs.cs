@@ -609,15 +609,43 @@ public partial class bs : Base2
     }
     public static List<AssetBundle> assetBundle = new List<AssetBundle>();
 
-    public static Object LoadRes(string name)
+
+
+    public static T LoadRes<T>(string p) where T : Object
     {
-        foreach (var a in assetBundle)
+        print("Loading Asset " + p);
+        if (Application.isEditor && setting.dontLoadAssets)
         {
-            var load = a.Load("@" + name);
-            if (load != null)
-                return load;
+#if UNITY_EDITOR
+            //p = modelLibraryPath + Path.ChangeExtension(p, null);
+            var p2 = Path.ChangeExtension(p, null);
+            Func<string, string> Exists = a => File.Exists(a) ? a : null;
+            Debug.Log("load asset at path " + p2);
+            var extensions = new[] { ".png", ".prefab", ".fbx", ".mat", ".txt" };
+            var modelLibraryPath = new[] { "Assets/Res2/Resources2/", "Assets/Res/Resources2/" };
+            p2 = extensions.SelectMany(a => modelLibraryPath.Select(z => Exists(z + p2 + a))).FirstOrDefault(a => a != null);
+            //p = Exists(p + ".png") ?? Exists(p + ".prefab") ?? Exists(p + ".fbx") ?? Exists(p + ".txt") ?? Exists(p + ".mat");
+            print(p2);
+            if (p2 != null)
+                return (T)AssetDatabase.LoadAssetAtPath(p2, typeof(T));
+#endif
         }
-        return Resources.Load(name);
+        else
+            foreach (var a in assetBundle)
+            {
+                var load = a.Load("@" + p);
+                if (load != null)
+                    return (T)load;
+            }
+        
+        return (T)Resources.Load(p);
+
+    }
+
+
+    public static Object LoadRes(string p)
+    {
+        return LoadRes<Object>(p);
 
         //if (assetBundle == null || assetBundle.Load("@" + name) == null)
         //    return Resources.Load(name);

@@ -1,6 +1,5 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 #if !UNITY_FLASH || UNITY_EDITOR
 #endif
 #if UNITY_EDITOR
@@ -9,13 +8,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using gui = UnityEngine.GUILayout;
-using Object = UnityEngine.Object;
 
 public class ModelLibrary
 {
     public ModelItem RootItem = new ModelItem();
 
-    public List<ModelFile> models = new List<ModelFile>();
+    internal static IEnumerable<ModelFile> GetModels(ModelItem m)
+    {
+        foreach (var a in m.files)
+            yield return a;
+        foreach (ModelItem a in m.dirs)
+            foreach (var b in GetModels(a))
+                yield return b;
+    }
+    internal IEnumerable<ModelFile> models
+    {
+        get { return GetModels(RootItem); }
+    }
 
     private Dictionary<string, ModelFile> m_dict;
 
@@ -35,7 +44,10 @@ public class ModelLibrary
             return m_dict;
         }
     }
-
+    public static ModelLibrary Load(string s)
+    {
+        return LitJson.JsonMapper.ToObject<ModelLibrary>(s);
+    }
 }
 
 public class ModelFile
@@ -44,99 +56,71 @@ public class ModelFile
     internal float usedCountSqrt { get { return bs.setting.Popularity.TryGet(path, 0); } }
     public string name;
     public string path;
-    internal  GameObject gameObj
+    internal GameObject gameObj
     {
         get
         {
-            var replace = path.Substring(0, path.LastIndexOf('.')).Replace('\\', '/');
-            //Path.GetFileNameWithoutExtension(path).Replace('\\', '/');
+            //var replace = path.Substring(0, path.LastIndexOf('.')).Replace('\\', '/');
+
+            var path2 = path.Substring(0, path.LastIndexOf('.')).Replace('\\', '/');
             if (m_gameObj == null)
                 if (bs._Loader.levelEditor || !bs.isDebug || true)
                 {
-                    m_gameObj = Instantiate(LoadPrefab(replace));
+                    GameObject lodg = bs.LoadRes<GameObject>(path2);
+                    var instantiate = (GameObject)bs.Instantiate(lodg);
+                    instantiate.name = lodg.name;
+                    //foreach (var a in loadPrefab.transform.GetTransforms().Select(a => a.light).Where(a => a != null).ToArray())
+                    if (instantiate)
+                        foreach (var a in instantiate.GetComponentsInChildren<Light>())
+                            GameObject.Destroy(a);
+                    m_gameObj = instantiate;
                     m_gameObj.transform.parent = bs._MapLoader.disable;
                 }
-                else
-                {
-                    GameObject prefab = null;
-                    //if (bs.lowQuality || bs.isDebug)
-                    //prefab = (GameObject)bs.LoadRes(replace + " LOD 0");
-
-                    if (prefab == null)
-                        prefab = LoadPrefab(replace);
-                    if (prefab == null) return null;
-                    m_gameObj = Instantiate(prefab);
-
-
-                    m_gameObj.name = prefab.name;
-                    var lodg = LoadPrefab(replace + " LOD 1");
-                    if (!lodg)
-                        lodg = prefab;
-                    if (lodg)
-                    {
-                        var l = new LOD(.5f, m_gameObj.GetComponentsInChildren<Renderer>());
-                        lodg = Instantiate(lodg);
-                        lodg.transform.parent = m_gameObj.transform;
-                        Collider[] componentsInChildren = lodg.GetComponentsInChildren<Collider>();
-                        foreach (var a in componentsInChildren)
-                            bs.DestroyImmediate(a);
-                        var lod = m_gameObj.AddComponent<LODGroup>();
-                        Renderer[] rs = lodg.GetComponentsInChildren<Renderer>();
-                        foreach (var r in rs)
-                        {
-                            Material[] sharedMaterials = new Material[r.sharedMaterials.Length];
-                            for (int i = 0; i < sharedMaterials.Length; i++)
-                                sharedMaterials[i] = bs.res.diffuseMat;
-                            r.castShadows = r.receiveShadows = false;
-                            r.sharedMaterials = sharedMaterials;
-                        }
-                        var l2 = new LOD(0f, rs);
-                        lod.SetLODS(new[] { l, l2 });
-                        lod.RecalculateBounds();
-                    }
-                    m_gameObj.transform.parent = bs._MapLoader.disable;
-                }
-
             return m_gameObj;
 
         }
     }
-    private static GameObject Instantiate(GameObject lodg)
-    {
-        var instantiate = (GameObject)bs.Instantiate(lodg);
-        instantiate.name = lodg.name;
-        //foreach (var a in loadPrefab.transform.GetTransforms().Select(a => a.light).Where(a => a != null).ToArray())
-        if (instantiate)
-            foreach (var a in instantiate.GetComponentsInChildren<Light>())
-                GameObject.Destroy(a);
-        return instantiate;
-    }
 
-    private static GameObject LoadPrefab(string replace)
-    {
-        GameObject loadPrefab = (GameObject)bs.LoadRes(replace);
-        return loadPrefab;
-    }
     private GameObject m_gameObj;
     private Texture2D m_thumb;
+    private bool inited;
     internal Texture2D thumb
     {
         get
         {
-            if (m_thumb == null)
-                m_thumb = (Texture2D)bs.LoadRes("FileIcons/" + name);
+            if (!inited)
+            {
+                inited = true;
+                m_thumb = bs.LoadRes<Texture2D>("FileIcons/" + name);
+            }
             return m_thumb;
         }
     }
+
 }
 public class ModelItem
 {
     public string Name;
-    public ModelItem parent;
+    //public ModelItem parent;
     public List<ModelItem> dirs = new List<ModelItem>();
     public List<ModelFile> files = new List<ModelFile>();
     internal Vector2 scroll;
     //public List<GameObject> files = new List<GameObject>();
     //public List<Texture> thumbs = new List<Texture>();
-    public Texture FolderTexture;
+    private bool inited;
+    internal Texture FolderTexture
+    {
+        get
+        {
+            if (!inited)
+            {
+                var m = ModelLibrary.GetModels(this).FirstOrDefault();
+                inited = true;
+                if (m != null)
+                    m_FolderTexture = bs.LoadRes<Texture2D>("FileIcons/" + Path.GetFileNameWithoutExtension(m.path));
+            }
+            return m_FolderTexture;
+        }
+    }
+    private Texture m_FolderTexture;
 }

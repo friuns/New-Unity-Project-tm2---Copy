@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using ConsoleApplication1;
-using UnityEditor;
 using UnityEngine;
-using System.Collections;
-   [ExecuteInEditMode]
+
+[ExecuteInEditMode]
 public class GbxTest : MonoBehaviour
 {
 

@@ -1411,12 +1411,7 @@ public partial class Loader
 
         gui.EndScrollView();
     }
-    public static void SelectAll(int len)
-    {
-        TextEditor te = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-        te.pos = 0; //set cursor position
-        te.selectPos = len; //se
-    }
+    
     internal bool tankCheat;
 
 #if old

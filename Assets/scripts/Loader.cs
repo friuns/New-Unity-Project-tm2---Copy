@@ -117,7 +117,7 @@ public partial class Loader
                 break;
             }
             string s = a + GetFileName(map.url);
-            wwwAssetBundle = WWW(s, map.fileDate);
+            wwwAssetBundle = WwwLoadFromCacheOrDownload(s, map.fileDate);
             yield return wwwAssetBundle;
             if (string.IsNullOrEmpty(wwwAssetBundle.error) && wwwAssetBundle.assetBundle != null)
             {
@@ -229,6 +229,9 @@ public partial class Loader
         //if (setting.enableCollisionCleanup)
         //    foreach (var a in res.outlineDict)
         //        res.outlines[a.Name] = a.outlineValues;
+
+        //if (!isDebug)
+        _music.LoadMusic(Music.music);
 
     }
     public void ShowBanner(bool b)
@@ -815,10 +818,10 @@ public partial class Loader
     }
     public string LoadingLabelMap()
     {
+        Setup(tittle: "Loading");
         if (isLoading)
             return Tr("Loading ", true) + GetFileNameWithoutExtension(mapWww.url) + " " + (((int)(mapWww == null ? 0 : mapWww.progress * 100)) + "%") + "\n" + "";
-        else
-            return "";
+        return mapWww.error;
     }
     protected void KeyboardSetup()
     {
@@ -1165,7 +1168,7 @@ public partial class Loader
     protected void VoteMap() { }
     public WWW AproveMap(int tested = 1, int advanced = 0)
     {
-        var w = Download(string.Format("{0}scripts/aproveMap2.php?map={1}&tested={2}&aprovedBy={3}&advanced={4}", mainSite, _Loader.mapName, tested, playerNamePrefixed, advanced), null, false);
+        var w = Download(string.Format("{0}scripts/aproveMap3.php?map={1}&tested={2}&aprovedBy={3}&advanced={4}", mainSite, _Loader.mapName, tested, playerNamePrefixed, advanced), null, false);
         return w;
     }
     public void RateMapWindow()
@@ -1194,7 +1197,7 @@ public partial class Loader
             }
             //gui.EndHorizontal();
         }
-        //Download(mainSite + "scripts/aproveMap2.php?map=" + _Loader.mapName + "&tested=" + 0, null, false);
+        //Download(mainSite + "scripts/aproveMap3.php?map=" + _Loader.mapName + "&tested=" + 0, null, false);
         for (int i = 1; i <= 5; i++)
         {
             if (gui.Button(res.rating[i * 2]))
@@ -1270,12 +1273,11 @@ public partial class Loader
         if (!Debug.isDebugBuild)
             LogEvent(EventGroup.playedTime, "played " + (int)((Time.realtimeSinceStartup - gameStartTime) / 60f) + "minutes");
     }
-    public static WWW WWW(string url, int version)
+    public static WWW WwwLoadFromCacheOrDownload(string url, int version)
     {
         if (Application.platform == RuntimePlatform.FlashPlayer)
             return new WWW(url + "?rnd=" + version);
-        else
-            return UnityEngine.WWW.LoadFromCacheOrDownload(url, (setting.noLevelCache ? Random.Range(0, 1000) : version));
+        return WWW.LoadFromCacheOrDownload(url, (setting.noLevelCache ? Random.Range(0, 1000) : version));
     }
     public void LoadCarSkins()
     {

@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 public class CustomWindow : GuiClasses
 {
     public Texture2D locked;
-    
+
     internal float _width;
     internal float _height;
     public GUISkin skinDefault;
@@ -44,7 +44,7 @@ public class CustomWindow : GuiClasses
     public static bool backSpaceDown;
     public override void Awake()
     {
-        
+
         enabled = false;
         base.Awake();
     }
@@ -56,7 +56,7 @@ public class CustomWindow : GuiClasses
 #if UNITY_EDITOR
         if (gui.Button("Clean Editor SKin"))
         {
-            foreach(GUIStyle a  in editorSkin)
+            foreach (GUIStyle a in editorSkin)
             {
                 GetValue(a.focused);
                 GetValue(a.active);
@@ -89,18 +89,18 @@ public class CustomWindow : GuiClasses
         {
             var builtinSkin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
             var instantiate = (GUISkin)Instantiate(builtinSkin);
-            
-            var dps = EditorUtility.CollectDependencies(new Object[] { instantiate});
+
+            var dps = EditorUtility.CollectDependencies(new Object[] { instantiate });
             foreach (var a in dps)
             {
                 print(a);
-                
+
                 if (a is Texture2D)
-                { 
+                {
                     //Texture2D texture2D = (a as Texture2D);
                     //texture2D.Apply(false,false);
                     //texture2D.LoadImage()
-                    AssetDatabase.CreateAsset(Instantiate(a),"Assets/EditorSkin/" + a.name + ".asset");
+                    AssetDatabase.CreateAsset(Instantiate(a), "Assets/EditorSkin/" + a.name + ".asset");
                     //File.WriteAllBytes("Assets/EditorSkin/" + a.name + ".png", texture2D.EncodeToPNG());
                 }
             }
@@ -136,21 +136,21 @@ public class CustomWindow : GuiClasses
         AssetDatabase.CreateAsset(Instantiate(a), "Assets/EditorSkin/" + a.name + ".asset");
     }
 #endif
-    private float WindowScale=1;
+    private float WindowScale = 1;
     internal Vector2 offset2;
     internal Vector2 scale;
     internal bool addflexibleSpace;
     internal bool showBackButton = true;
     public void OnGUI()
     {
-        if (Event.current.isMouse && (Input.GetMouseButtonUp(0) && mouseDrag > 5f/1024))
-        {            
+        if (Event.current.isMouse && (Input.GetMouseButtonUp(0) && mouseDrag > 5f / 1024))
+        {
             Event.current.Use();
             //print(mouseDrag);
         }
         buttonCount = buttonId;
-        cnt =buttonId = 0;
-        GUI.depth = 0;        
+        cnt = buttonId = 0;
+        GUI.depth = 0;
         scale = GUIMatrix(WindowScale);
         cur = 0;
         float w = _width = Screen.width / scale.x;
@@ -171,7 +171,7 @@ public class CustomWindow : GuiClasses
             else if (dock == Dock.Left)
                 c = new Vector3(s.x, h / 2f);//+ w * .05f
             else if (dock == Dock.Down)
-                c = new Vector3(w / 2f, h-s.y);//+ w * .05f
+                c = new Vector3(w / 2f, h - s.y);//+ w * .05f
             else
                 c = new Vector3(w, h) / 2f;
             var v1 = c - s;
@@ -183,10 +183,10 @@ public class CustomWindow : GuiClasses
             {
                 act2();
                 if (act2 == null) return;
-                if (backs.ContainsKey(act2) && backs[act2]!=null && showBackButton)
+                if (backs.ContainsKey(act2) && backs[act2] != null && showBackButton)
                 {
                     if (addflexibleSpace)
-                    GUILayout.FlexibleSpace();
+                        GUILayout.FlexibleSpace();
                     if (BackButtonLeft())
                         Back();
                 }
@@ -195,7 +195,7 @@ public class CustomWindow : GuiClasses
                 target.SendMessage(Window);
             //gui.Button(new GUIContent("Test", "tasd"));
             GUILayout.EndArea();
-            
+
         }
         if (_Loader.levelEditor == null)
             DrawToolTip();
@@ -203,10 +203,10 @@ public class CustomWindow : GuiClasses
             tooltip = GUI.tooltip;
         //GUI.matrix = mt;
     }
-    
+
     public void DrawToolTip()
     {
-        GUI.Label(new Rect(0, win._height -15, win._width, 50), tooltip);
+        GUI.Label(new Rect(0, win._height - 15, win._width, 50), tooltip);
     }
     public string tooltip;
 
@@ -220,25 +220,25 @@ public class CustomWindow : GuiClasses
             return windowRect.Contains(new Vector3(m.x / guiscale.x, m.y / guiscale.y));
         }
     }
-    
+
     static float originalWidth = 950;
     static float originalHeight = 450;
     public static Vector3 GUIMatrix(float sc = 1)
     {
-        var x = ((float) Screen.height/Screen.width)/(originalHeight/originalWidth);
+        var x = ((float)Screen.height / Screen.width) / (originalHeight / originalWidth);
         //var mt = GUI.matrix;
-        
+
         guiscale = _Loader.scaleButtons && Screen.orientation != ScreenOrientation.AutoRotation
                             ? new Vector3(Screen.width / originalWidth * x, Screen.height / originalHeight, 1) * sc
-                            : Vector3.one ;
-        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, guiscale );        
+                            : Vector3.one;
+        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, guiscale);
         return guiscale;
     }
     public static Vector3 guiscale;
     internal float mouseDrag;
     public void Update()
     {
-        
+
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
             mouseDrag = 0;
         else if (Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(2))
@@ -271,7 +271,7 @@ public class CustomWindow : GuiClasses
             }
         }
     }
-    
+
     public void CloseWindow()
     {
         print("Close Window");
@@ -289,7 +289,7 @@ public class CustomWindow : GuiClasses
         GUILayout.EndHorizontal();
         cur++;
     }
-    public void Setup(int x = 400, int y = 300, string tittle = "", Dock dock = Dock.Center, Texture2D txt = null, GUIStyle st = null,float windowscale=1)
+    public void Setup(int x = 400, int y = 300, string tittle = "", Dock dock = Dock.Center, Texture2D txt = null, GUIStyle st = null, float windowscale = 1)
     {
         showBackButton = true;
         addflexibleSpace = true;
@@ -304,18 +304,18 @@ public class CustomWindow : GuiClasses
         this.dock = dock;
     }
 
-    
+
     public IEnumerator ShowWindow2(Action func)
     {
         ShowWindow(func, win.act);
         while (act != null && act == func)
             yield return null;
     }
-    public void ShowWindow(Action func, Action back = null, bool skip = false)
+    public void ShowWindow(Action func, Action back = null, bool skipAnim = false)
     {
         if (act == func) return;
         act = func;
-        print("Show Window: "+func.Method.Name);
+        print("Show Window: " + func.Method.Name);
         _Loader.OnWindowShow(func);
         curButton = -1;
 
@@ -325,7 +325,7 @@ public class CustomWindow : GuiClasses
             anim[i] = 500;
         curAnim = 0;
         StopAllCoroutines();
-        if (skip || true|| _Loader.levelEditor)
+        if (skipAnim || _Loader.levelEditor || isDebug)
         {
             offsetAnim = 0;
             SetWindow(func, back);
@@ -373,6 +373,6 @@ public class CustomWindow : GuiClasses
 
     //public void OnLevelWasLoaded(int level)
     //{        
-        //CloseWindow();
+    //CloseWindow();
     //}
 }

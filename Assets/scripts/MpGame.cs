@@ -259,6 +259,8 @@ public partial class MpGame : GameBase
         }
         CallRPC(SetGameState, (int)_Game.gameState);
         CallRPC(TimeLimit, matchTimeLimit);
+        if (!string.IsNullOrEmpty(music))
+            CallRPC(LoadMusic, music);
         //if (_Loader.dm)
         //    CallRPC(SetLevelTime, timeElapsedLevel);
     }
@@ -402,5 +404,13 @@ public partial class MpGame : GameBase
                 ShowWindow(BanWindow, win.act);
             else
                 ShowWindow(MuteWindow, win.act);
+    }
+
+    public string music;
+    [RPC]
+    public void LoadMusic(string Obj)
+    {
+        music = Obj;
+        _music.LoadMusic(Obj);
     }
 }

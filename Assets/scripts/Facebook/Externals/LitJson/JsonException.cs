@@ -1,14 +1,13 @@
 #region Header
 /**
  * JsonException.cs
- *   Base2 class throwed by LitJSON when a parsing error occurs.
+ *   Base class throwed by LitJSON when a parsing error occurs.
  *
  * The authors disclaim copyright to this source code. For more details, see
  * the COPYING file included with this distribution.
  **/
 #endregion
 
-#if !UNITY_FLASH
 
 using System;
 
@@ -59,5 +58,3 @@ namespace LitJson
         }
     }
 }
-
-#endif

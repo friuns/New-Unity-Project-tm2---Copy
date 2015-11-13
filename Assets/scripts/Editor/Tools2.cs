@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 using print = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-public class Tools2 : Editor
+public partial class Tools2 : Editor
 {
 
     //[MenuItem("RTools/Reser UV")]
@@ -182,53 +182,7 @@ public class Tools2 : Editor
     //    //StaticBatchingUtility.Combine(Selection.activeGameObject);
     //    Selection.activeGameObject.AddComponent<MeshFilter>().sharedMesh= Selection.activeGameObject.GetComponentInChildren<MeshFilter>().sharedMesh;
     //}
-    private static ModelLibrary modelLibrary;
-    [MenuItem("RTools/AddToLibrary", false, -1)]
-    public static void AddToLibrary()
-    {
-        //resEditor.ModelLibrary.RootItem.dirs.Clear();
-        //resEditor.ModelLibrary.RootItem.files.Clear();
-        //resEditor.ModelLibrary.models.Clear();
-        modelLibrary = new ModelLibrary();
 
-        foreach (var a in Selection.objects)
-        {
-            var modelItem = new ModelItem();
-            modelLibrary.RootItem.dirs.Add(modelItem);
-            var path = AssetDatabase.GetAssetPath(a);
-            modelItem.Name = Path.GetFileName(path);
-            GetDirs(path, modelItem);
-        }
-        File.WriteAllText("Assets/modelLibrary.json", LitJson.JsonMapper.ToJson(modelLibrary));
-    }
-    public static void GetDirs(string path, ModelItem modelItem)
-    {
-        var directories = Directory.GetDirectories(path);
-        Debug.Log(directories.Length);
-
-        foreach (var a in directories)
-        {
-            var m = new ModelItem();
-            m.parent = modelItem;
-            m.Name = Path.GetFileName(a);
-            modelItem.dirs.Add(m);
-            GetDirs(a, m);
-        }
-        var files = Directory.GetFiles(path, "*.fbx").Union(Directory.GetFiles(path, "*.prefab"));
-        foreach (string a in files)
-        {
-
-            string p = "Assets/Res2/Resources/FileIcons/" + Path.GetFileNameWithoutExtension(a) + ".png";
-            if (!File.Exists(p))
-                if (!RenderObject(a, p))
-                    continue;
-            var modelFile = new ModelFile() { path = a.Substring(a.IndexOf("Resources/") + 10), name = Path.GetFileNameWithoutExtension(a) };
-            modelItem.files.Add(modelFile);
-            modelLibrary.models.Add(modelFile);
-            if (modelItem.FolderTexture == null)
-                modelItem.FolderTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(p, typeof(Texture2D));
-        }
-    }
     [MenuItem("RTools/CleanGrass")]
     public static void ClearTerrain()
     {

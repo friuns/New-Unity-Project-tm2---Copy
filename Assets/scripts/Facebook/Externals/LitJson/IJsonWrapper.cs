@@ -15,8 +15,6 @@ using System.Collections;
 using System.Collections.Specialized;
 
 
-#if !UNITY_FLASH && !UNITY_WP8
-
 namespace LitJson
 {
     public enum JsonType
@@ -60,4 +58,3 @@ namespace LitJson
         void   ToJson (JsonWriter writer);
     }
 }
-#endif

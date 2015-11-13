@@ -283,8 +283,7 @@ public partial class Game : GuiClasses
         //green = MakeMaterial(new Color(0, 0, 1, 1));
         if (_Loader.dm && !_Loader.enableMatchTime)
             gameState = GameState.started;
-        if (_music)
-            _music.PlayRandom();
+        
         _Loader.scoreBoard = null;
         ctf.SetActive(_Loader.ctf);
         StartTexts();
@@ -547,7 +546,7 @@ public partial class Game : GuiClasses
             else if (startedOrFinnished && _Loader.race)
                 RestartLevel();
         }
-        iosMenu.enabled = ios && !win.enabled || editControls;
+        iosMenu.enabled = !win.enabled || editControls;
         var iosEsc = _Player != null && iosMenu.enabled && iosMenu.HitTest(Input.mousePosition, _Player.hud.camera) &&
                      Input.GetMouseButtonDown(0);
         if (iosEsc || input.GetKeyDown(KeyCode.Escape))
@@ -779,6 +778,7 @@ public partial class Game : GuiClasses
             _Game.RestartLevel();
         if (Button("Scoreboard"))
             ShowScoreBoard();
+        DrawPlayMusicButton();
         if (isMod)
             RateButton(MenuWindow);
         if (_Loader.levelEditor != null && Button("Back To Editor"))
@@ -800,6 +800,22 @@ public partial class Game : GuiClasses
         if (android && online && Button("Chat"))
             StartCoroutine(_GameGui.OpenAndroidChat());
         _AutoQuality.DrawDistance();
+    }
+    private void DrawPlayMusicButton()
+    {
+        if ((Time.time - Music.broadCastTime > 60 || isDebug) && Button("Play music"))
+        {
+            string musicUrl = "";
+            ShowWindow(delegate
+            {
+                musicUrl = TextArea("mp3 url:", musicUrl);
+                if (Button("Load"))
+                {
+                    _music.LoadMusic(musicUrl, true);
+                    win.CloseWindow();
+                }
+            });
+        }
     }
     internal Player rewindingPlayer;
     public void OnDisconnectedFromPhoton()
@@ -897,7 +913,8 @@ public partial class Game : GuiClasses
         {
             //InitMarmoset(); 
             InitSpecular();
-        } catch (Exception e) { Debug.LogError(e.Message); }
+        }
+        catch (Exception e) { Debug.LogError(e.Message); }
     }
     private void Initbackground()
     {
@@ -1054,7 +1071,8 @@ public partial class Game : GuiClasses
                     try
                     {
                         WriteSaveReplay();
-                    } catch (Exception e) { Debug.LogError(e); }
+                    }
+                    catch (Exception e) { Debug.LogError(e); }
                 _Loader.record = timeElapsed;
                 wonRecord = true;
             }
@@ -1205,7 +1223,7 @@ public partial class Game : GuiClasses
     //}
     public void RateButton(Action a)
     {
-        if (_Loader.levelEditor == null && (!PlayerPrefsGetBool("voted" + _Loader.mapName) || isDebug && !Button("AlreadyVoted")) && Button("Rate this map"))
+        if (_Loader.levelEditor == null && (!PlayerPrefsGetBool("voted" + _Loader.mapName) || !Button("AlreadyVoted")) && Button("Rate this map"))
             ShowWindow(_Loader.RateMapWindow, a);
     }
     private void WonMedalWindow()

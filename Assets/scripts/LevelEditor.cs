@@ -21,6 +21,7 @@ using Random = UnityEngine.Random;
 
 public partial class LevelEditor : MapLoader
 {
+    private const string LinkToTutorialUseCtrlCToCopy = "Link to tutorial, use Ctrl+C to copy";
     private new Camera camera;
     public Transform cursor;
     private Vector3 cursorPos { get { return cursor.position; } }
@@ -100,7 +101,8 @@ public partial class LevelEditor : MapLoader
         ModeViewStart();
         if (loadMap != null)
             StartLoadMap();
-        if (unityMap != null)
+
+        if (!string.IsNullOrEmpty(unityMap))
             StartCoroutine(LoadUnityMap());
         _Loader.guiText.anchor = TextAnchor.LowerRight;
         _Loader.guiText.transform.position = new Vector3(1, 0, 0);
@@ -152,7 +154,7 @@ public partial class LevelEditor : MapLoader
                 var link = "http://www.youtube.com/playlist?list=PLAAP2vqx0GEFZ6sk5QDmkEmk16GcNFAHW";
                 gui.TextField(link);
                 Loader.SelectAll(link.Length);
-                gui.Label("Link to tutorial, use Ctrl+C to copy");
+                gui.Label(LinkToTutorialUseCtrlCToCopy);
             }, win.act);
 #if UNITY_WEBPLAYER
             Screen.fullScreen = false;
@@ -179,7 +181,7 @@ public partial class LevelEditor : MapLoader
         else
             ShowWindowNoBack(OnEditorWindow);
     }
-    private void Clear()
+    private void ClearRestart()
     {
         if (start != null)
             DestroyImmediate(start.gameObject);
@@ -954,7 +956,7 @@ public partial class LevelEditor : MapLoader
                     StartCoroutine(_Loader.DownloadUserMaps(0, 0));
                 }
                 if (Button("Load (.Unity3D)"))
-                    ShowWindow(LoadUnityMapWindow, win.act);
+                    LoadUnityMapWindow();
             }
             else if (Button("Show More Tools"))
             {
@@ -976,20 +978,39 @@ public partial class LevelEditor : MapLoader
         if (Event.current.type == EventType.Repaint && !string.IsNullOrEmpty(GUI.tooltip))
             win.tooltip = GUI.tooltip;
     }
-
+    void LoadMapFromUrl() { }
     public void LoadUnityMapWindow()
     {
-        BeginScrollView();
-        gui.BeginHorizontal();
-        TextField("Url:", unityMap);
-        if (Button("Load", false))
-            Clear();
-
-        gui.EndHorizontal();
-        foreach (var a in _Loader.scenes.Where(a => !a.userMap))
-            if (Button(a.name))
-                unityMap = mapName = a.name;
-        gui.EndScrollView();
+        var map = "http://cdn2.rocketeergames.com/rc3/arenas/high/A7_Autobahn.unity3d";
+        ShowWindow(delegate
+        {
+            BeginScrollView();
+            gui.BeginHorizontal();
+            if (Button("video tutorial"))
+            {
+                const string link = "https://www.youtube.com/watch?v=ibwtR5CWWjA";
+                ShowWindow(delegate
+                {
+                    gui.TextField(link);
+                    Loader.SelectAll(link.Length);
+                    gui.Label(LinkToTutorialUseCtrlCToCopy);
+                }, win.act);
+                Screen.fullScreen = false;
+                ExternalEval(string.Format("ShowYoutube('{0}','{1}')", link, "http://img.youtube.com/vi/ibwtR5CWWjA/mqdefault.jpg"));
+            }
+            map = TextArea("Url:", map);
+            SelectAll(map.Length);
+            if (Button("Load", false))
+            {
+                unityMap = map;
+                ClearRestart();
+            }
+            gui.EndHorizontal();
+            foreach (var a in _Loader.scenes.Where(a => !a.userMap))
+                if (Button(a.name))
+                    map = mapName = a.name;
+            gui.EndScrollView();
+        }, win.act);
     }
 
     private string[] tutorialUrls;
@@ -1125,7 +1146,7 @@ public partial class LevelEditor : MapLoader
 
         if (BeginVertical("Models"))
         {
-            if (modelLib==null)
+            if (modelLib == null)
                 Label("Loading");
             else
                 DrawModelView();
@@ -1165,7 +1186,7 @@ public partial class LevelEditor : MapLoader
             if (Button("Clear"))
             {
                 unityMap = "";
-                Clear();
+                ClearRestart();
             }
             if (Button("Reset Camera"))
                 ResetCam();

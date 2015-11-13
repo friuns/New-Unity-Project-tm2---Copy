@@ -21,6 +21,11 @@ public delegate void Action<T1, T2, T3, T4, T5, T6>(T1 t1, T2 t2, T3 t3, T4 t4, 
 public class bsNetwork : GuiClasses
 {
 
+    public void CallRPCTo<T>(Action<T> n, PhotonTargets target, T p)
+    {
+        photonView.RPC(n.Method.Name, target, p);
+    }
+
     public static bool? m_IsMaster;
 
     public static bool isMaster
