@@ -275,8 +275,9 @@ public partial class bs : Base2
     internal static string m_mainSite = "://tmrace.net/tm/";
     internal static string http
     {
-        get { return (flash || Application.platform == RuntimePlatform.NaCl || Application.absoluteURL == null || !Application.absoluteURL.ToLower().StartsWith("https") ? "http" : "https"); }
+        get { return (flash || Application.platform == RuntimePlatform.NaCl || Application.absoluteURL == null || !isHttps ? "http" : "https"); }
     }
+    public static bool isHttps { get { return Application.absoluteURL.ToLower().StartsWith("https"); } }
     internal static string _MainSite { get { return http + m_mainSite; } }
     public bool easy { get { return _Loader.difficulty == Difficulty.Easy; } }
     public bool normal { get { return _Loader.difficulty == Difficulty.Normal; } }
@@ -637,7 +638,7 @@ public partial class bs : Base2
                 if (load != null)
                     return (T)load;
             }
-        
+
         return (T)Resources.Load(p);
 
     }
@@ -672,12 +673,11 @@ public partial class bs : Base2
 
         StringBuilder sb = new StringBuilder();
         foreach (var a in playerPrefKeys)
-            if (a.StartsWith(bs._Loader.playerName))
-                sb.Append(a).Append(",");
+            sb.Append(a).Append(",");
 
         var s = Convert.ToBase64String(GZipStream.CompressString(sb.ToString()));
         print(sb.Length + " vs " + s.Length);
-        PlayerPrefs.SetString2("keysnew3", s);
+        PlayerPrefs.SetString2(keysNew3, s);
 
 
         PlayerPrefs.Save();

@@ -283,7 +283,7 @@ public partial class Game : GuiClasses
         //green = MakeMaterial(new Color(0, 0, 1, 1));
         if (_Loader.dm && !_Loader.enableMatchTime)
             gameState = GameState.started;
-        
+
         _Loader.scoreBoard = null;
         ctf.SetActive(_Loader.ctf);
         StartTexts();
@@ -778,7 +778,7 @@ public partial class Game : GuiClasses
             _Game.RestartLevel();
         if (Button("Scoreboard"))
             ShowScoreBoard();
-        DrawPlayMusicButton();
+
         if (isMod)
             RateButton(MenuWindow);
         if (_Loader.levelEditor != null && Button("Back To Editor"))
@@ -801,22 +801,7 @@ public partial class Game : GuiClasses
             StartCoroutine(_GameGui.OpenAndroidChat());
         _AutoQuality.DrawDistance();
     }
-    private void DrawPlayMusicButton()
-    {
-        if ((Time.time - Music.broadCastTime > 60 || isDebug) && Button("Play music"))
-        {
-            string musicUrl = "";
-            ShowWindow(delegate
-            {
-                musicUrl = TextArea("mp3 url:", musicUrl);
-                if (Button("Load"))
-                {
-                    _music.LoadMusic(musicUrl, true);
-                    win.CloseWindow();
-                }
-            });
-        }
-    }
+
     internal Player rewindingPlayer;
     public void OnDisconnectedFromPhoton()
     {
@@ -1007,7 +992,7 @@ public partial class Game : GuiClasses
         //if (!online)
         //    _Player.replay.finnishTime = 0;
         replaysLoaded = false;
-        if (_Loader.enableCollision && _Loader.showYourGhost && _Loader.levelEditor == null && !online)
+        if (!_Loader.enableCollision && _Loader.showYourGhost && _Loader.levelEditor == null && !online)
             LoadReplays();
         backTime = false;
         if (!_Loader.dmNoRace)
@@ -1198,6 +1183,8 @@ public partial class Game : GuiClasses
         if (_Player.coins > 0)
             win.LabelAnim(Trs("Coins collected:").PadRight(20) + _Player.coins + "/" + _Game.coins.Length);
         gui.FlexibleSpace();
+        //if (_Loader.gameType == GameType.race && _Integration.loggedIn && Button("Post Record"))
+        //    _Integration.wallPost(_Player.finnishTime);
         gui.BeginHorizontal();
         if (!_Loader.dmNoRace && Button("Restart"))
             _Game.RestartLevel();
@@ -1213,6 +1200,7 @@ public partial class Game : GuiClasses
             LoadLevel(Levels.menu);
         }
         gui.EndHorizontal();
+
         //gui.EndScrollView();
     }
     //[RPC]

@@ -56,20 +56,21 @@ public partial class Integration : GuiClasses
         if (Application.isWebPlayer)
             yield return new WaitForSeconds(1);
         
-        var w = new WWW("https://graph.facebook.com/trackracingonline/feed?access_token=261172830687941|d5mN7DtR-LQoNlBW9JFBL7gM_h4");
+        var w = new WWW("https://graph.facebook.com/trackracingonline/posts?access_token=261172830687941|d5mN7DtR-LQoNlBW9JFBL7gM_h4&fields=id,name,description,picture,comments,id");
         yield return w;
         if (posts.Count >0 && !isDebug)
             yield break;
         posts.Clear();
         print(w.url);
-        IEnumerable d = JsonMapper.ToObject(w.text)["data"];
+        var data = JsonMapper.ToObject(w.text);
+        IEnumerable d = data["data"];
         foreach (JsonData a in d)
         {
-            var type = a["type"].ToString();
-            if (a["from"]["name"].ToString() == "Trackracing Online")
-            if (type == "video" || type == "status" || type == "link")
+            //var type = a["type"].ToString();
+            //if (a["from"]["name"].ToString() == "Trackracing Online")
+            //if (type == "video" || type == "status" || type == "link")
             {
-                JsonData jsonData = a["desctiption"] ?? a["message"] ?? a["name"];
+                JsonData jsonData = a["name"];
                 if (jsonData != null)
                 {
                     var post = new Posts();
@@ -129,46 +130,9 @@ public partial class Integration : GuiClasses
                 }
             }
         }
-        if (platformPrefix == "flash")
-        {
-            //if (!_Loader.Beginner)
-                if (Button("Play Full Version on Facebook" + (facebookLinkPressed ? "" : "\n and unlock new car!"), res.faceBook))
-                {                    
-                    LogEvent("Facebook");
-                    win.ShowWindow(GoToFbLink);
-                    if (alternativeOpen)
-                    {
-                        ActionScript.Import("flash.net.URLLoader");
-                        ActionScript.Import("flash.net.URLRequest");
-                        ActionScript.Import("flash.net.URLRequestMethod");
-                        ActionScript.Import("flash.net.URLLoaderDataFormat");
-                        ActionScript.Import("flash.net.URLVariables");
-                        ActionScript.Import("flash.net.navigateToURL");
-                        ActionScript.Statement(@"var url:URLRequest = new URLRequest(""{0}""); navigateToURL(url);", facebookLink);//, ""_blank""
-                    }
-                }
-        }
+      
     }
-    string facebookLink = "http://apps.facebook.com/TrackRacing";
-    public bool alternativeOpen;
-    private void GoToFbLink()
-    {
-        Setup(700, 400);
-        LabelCenter("Latest version found at", 16, true);
-        if (Button(Trs(facebookLink))) Application.OpenURL(facebookLink);
-        GUILayout.FlexibleSpace();
-        if (BackButtonLeft())
-        {
-            if (!facebookLinkPressed)
-            {
-                facebookLinkPressed = true;
-                _Loader.wonMedals = 10;
-                _Loader.medals += _Loader.wonMedals;
-            }
-            _Loader.WindowPool();
-            //ShowWindow(_Loader.MenuWindow);
-        }
-    }
+    
     public void FacebookLogin()
     {
 #if UNITY_WEBPLAYER

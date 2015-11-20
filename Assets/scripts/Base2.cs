@@ -67,6 +67,13 @@ public class Base2 : Base
         yield return y;
         act();
     }
+
+    public static IEnumerator AddMethod(WWW y, Action act)
+    {
+        //StopAllCoroutines();
+        yield return y;
+        act();
+    }
     public static IEnumerator AddMethod(Func<bool> y, Action act)
     {        
         //StopAllCoroutines();
@@ -238,13 +245,14 @@ public class Base2 : Base
             m_playerPrefKeys = value;
         }
     }
+    public const string keysNew3 = "keysnew3";
     public static void LoadKeys()
     {
         Profiler.BeginSample("LoadKeys");
         m_playerPrefKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (bs.setting.disablePlayerPrefs)
             return;
-        var s = UnityEngine.PlayerPrefs.GetString("keysnew3");
+        var s = UnityEngine.PlayerPrefs.GetString(bs.keysNew3);
         if(!string.IsNullOrEmpty(s))
         {
             s = GZipStream.UncompressString(Convert.FromBase64String(s));

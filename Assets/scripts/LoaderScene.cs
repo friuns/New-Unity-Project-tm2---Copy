@@ -20,6 +20,7 @@ public class LoaderScene : GuiClasses
     public void Start()
     {
         _LoaderScene = this;
+        MapLoader.unityMap = "";
         if (android || _Loader.vk)
         {
             //Destroy(hostThisGame.gameObject);
@@ -111,7 +112,7 @@ public class LoaderScene : GuiClasses
 
                 string url = string.Format(_Loader.vkSite ? "https://vk.com/trackracing?w=wall-59755500_{0}%2Fall" : "https://www.facebook.com/trackracingonline/posts/{0}", a.id);
                 if (Application.isWebPlayer)
-                    Application.ExternalEval(string.Format("window.top.location = '{0}';", url));
+                    ExternalEval(string.Format("window.top.location = '{0}';", url));
                 else
                     Application.OpenURL(url);
             }
@@ -140,7 +141,8 @@ public class LoaderScene : GuiClasses
             _Loader.reputation += 20;
             PlayerPrefs.SetInt(_Loader.playerName + "groupJoin", 1);
             win.Back();
-            Application.ExternalEval("OpenVkGroup()");
+            _Loader.FullScreen(false);
+            ExternalEval("OpenVkGroup()");
 
         }
 #endif

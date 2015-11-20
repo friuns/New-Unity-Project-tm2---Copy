@@ -29,19 +29,20 @@ public class VoiceChatPlayer : VoiceChatBase
     {
         if (bs.offlineMode)
         {
-            enabled = false; 
+            enabled = false;
             return;
         }
         int size = VoiceChatSettings.Instance.Frequency * 10;
 
         audio = gameObject.AddComponent<AudioSource>();
-        audio.ignoreListenerVolume = true;
-        audio.volume = 3;
-        audio.bypassEffects = audio.bypassReverbZones = audio.bypassListenerEffects = true;
+        //audio.ignoreListenerVolume = true;
+        //audio.volume = 3;
+        //audio.bypassEffects = audio.bypassReverbZones = audio.bypassListenerEffects = true;
         audio.loop = true;
-        audio.clip = AudioClip.Create("VoiceChat", size, 1, VoiceChatSettings.Instance.Frequency, false, false);
+        audio.minDistance = 50;
+        //audio.enabled = false;
+        audio.clip = AudioClip.Create("VoiceChat", size, 1, VoiceChatSettings.Instance.Frequency, true, false);
         audio.priority = 0;
-        audio.enabled = false;
         data = new float[size];
 
         if (VoiceChatSettings.Instance.LocalDebug)
@@ -49,7 +50,7 @@ public class VoiceChatPlayer : VoiceChatBase
             VoiceChatRecorder.Instance.NewSample += OnNewSample;
         }
     }
-    
+
     void Update()
     {
         if (audio.isPlaying)
@@ -103,7 +104,7 @@ public class VoiceChatPlayer : VoiceChatBase
         // Decompress
         float[] sample = null;
         int length = VoiceChatUtils.Decompress(speexDec, packet, out sample);
-        
+
         //NormalizeSample(sample);
 
         // Add more time to received
@@ -122,7 +123,6 @@ public class VoiceChatPlayer : VoiceChatBase
         }
 
         // Set data
-        audio.enabled = true;
         audio.clip.SetData(data, 0);
 
         // If we're not playing
@@ -141,6 +141,6 @@ public class VoiceChatPlayer : VoiceChatBase
         VoiceChatFloatPool.Instance.Return(sample);
     }
 
-    
+
 #endif
 }

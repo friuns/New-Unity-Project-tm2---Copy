@@ -665,47 +665,7 @@ public partial class Tools2 : Editor
     {
         get { return activeBuildTarget == BuildTarget.iPhone; }
     }
-    private static bool RenderObject(string a, string path)
-    {
-        var g = (GameObject)AssetDatabase.LoadAssetAtPath(a, typeof(GameObject));
-        if (g == null) return false;
-        EditorApplication.NewScene();
-        g = (GameObject)Instantiate(g, Vector3.zero, g.transform.rotation);
-        var camera = new GameObject().AddComponent<Camera>();
-        var cam = camera.transform;
-        var renderer = g.GetComponentInChildren<Renderer>();
-        if (renderer == null)
-        {
-            Debug.Log("renderer not found " + g.name);
-            return false;
-        }
-        var bounds = renderer.bounds;
-        camera.orthographic = true;
-        var vector3 = bounds.size;
-        //vector3.y = 0;
-        camera.orthographicSize = vector3.magnitude * .5f;
-        cam.position = new Vector3(1, .5f, 1) * vector3.magnitude;
-        var addComponent = cam.gameObject.AddComponent<Light>();
-        addComponent.type = LightType.Directional;
-        addComponent.intensity = .5f;
-        cam.LookAt(bounds.center);
-
-        var resWidth = 128;
-        var resHeight = 128;
-        RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
-        camera.targetTexture = rt;
-        Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
-        camera.Render();
-        RenderTexture.active = rt;
-        screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
-        camera.targetTexture = null;
-        RenderTexture.active = null; // JC: added to avoid errors
-        //DestroyImmediate(rt);
-        byte[] bytes = screenShot.EncodeToPNG();
-        File.WriteAllBytes(path, bytes);
-        AssetDatabase.Refresh();
-        return true;
-    }
+    
 
 }
 [CustomPropertyDrawer(typeof(EnumFlagsAttribute))]

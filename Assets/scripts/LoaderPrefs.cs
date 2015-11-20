@@ -63,7 +63,8 @@ public partial class Loader : GuiClasses
     public bool accelometer { get { return controls == Contr.acel; } }
     public bool autoFullScreen { get { return PlayerPrefsGetBool("autoFullScreen", Application.isWebPlayer && !Nancl); } set { PlayerPrefsSetBool("autoFullScreen", value); } }
     //public static bool webPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
-    public bool showYourGhost { get { return PlayerPrefsGetBool(prefixplat + "showYourGhost", !android && !Application.isEditor); } set { PlayerPrefsSetBool(prefixplat + "showYourGhost", value); } }
+    internal readonly bool showYourGhost = false;
+    //{ get { return PlayerPrefsGetBool(prefixplat + "showYourGhost", !android); } set { PlayerPrefsSetBool(prefixplat + "showYourGhost", value); } }
     //public bool statsSaved { get { return PlayerPrefsGetBool(playerName + "StatsSaved2"); } set { PlayerPrefsSetBool(playerName + "StatsSaved2", value); } }
     public float record { get { return PlayerPrefsGetFloat(6 + prefixMapPl + "record", float.MaxValue); } set { PlayerPrefsSetFloat(6 + prefixMapPl + "record", value); } }
     public int avatar { get { return PlayerPrefsGetInt(playerName + "avatar", isDebug ? 0 : -1); } set { PlayerPrefsSetInt(playerName + "avatar", value); } }

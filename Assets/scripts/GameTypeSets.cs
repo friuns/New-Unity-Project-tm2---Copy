@@ -11,7 +11,7 @@ public partial class Loader
     public bool team { get { return gameType == GameType.team || gameType == GameType.ctf; } }
     public bool teamOrPursuit { get { return team || pursuit; } }
     private bool m_enableZombies = false;
-    public bool enableZombies { get { return dmOrPursuit && m_enableZombies; } set { m_enableZombies = value; } }
+    public bool enableZombies { get { return (dmOrPursuit ||dmRace) && m_enableZombies; } set { m_enableZombies = value; } }
     public bool ctf { get { return gameType == GameType.ctf; } }
     public bool ctfRandomSpawn = false;
     public bool dmOrCoins { get { return dm; } }

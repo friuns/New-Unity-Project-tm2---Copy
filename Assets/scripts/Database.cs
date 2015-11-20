@@ -277,13 +277,27 @@ public class Scene
     //internal string levelName;
     private Texture2D m_texture;
     private bool loaded2;
+    private WWW www;
     public Texture2D texture
     {
         get
         {
             if (!loaded2)
             {
-                m_texture= (Texture2D)bs.LoadRes("MapTextures/" + name);
+                if (userMap)
+                {
+                    www = new WWW(bs.mainSite + "mapicons/" + name + ".png");
+                    bs._Loader.StartCoroutine(bs.AddMethod(www, delegate
+                    {
+                        if (string.IsNullOrEmpty(www.error))
+                        {
+                            //Debug.LogWarning(www.url);
+                            m_texture = www.texture;
+                        }
+                    }));
+                }
+                else
+                    m_texture = (Texture2D)bs.LoadRes("MapTextures/" + name);
                 loaded2 = true;
             }
             return m_texture;

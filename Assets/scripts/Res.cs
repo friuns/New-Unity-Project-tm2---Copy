@@ -3,9 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-public class GameRes{}
+public class GameRes { }
 public class ResGame { }
-public class Res :MonoBehaviour
+public class Res : MonoBehaviour
 {
     public AnimationCurve ForceCurve;
     public AnimationCurve RotCurve;
@@ -23,9 +23,9 @@ public class Res :MonoBehaviour
     public AudioClip[] hitSoundBig;
     public Shader reflect;
     public Shader diffuse;
-    public Material diffuseMat;    
+    public Material diffuseMat;
     public Shader specular;
-    public Material transparmentMat ;
+    public Material transparmentMat;
     public Shader transparment2;
     public Shader transparmentCutout;
     public Shader transparmentEditor;
@@ -62,18 +62,19 @@ public class Res :MonoBehaviour
     public GUIStyle mapSelectButton;
     public GUIStyle menuButton;
     public GUIStyle labelGlow;
+    public GUIStyle userMapButton;
     public Texture2D[] avatars;
     public Loader loaderPrefab;
     public Texture2D faceBook;
     //public GUIStyle arrow;
     public Texture2D attention;
     public Texture2D android;
-    public  PhysicMaterial track;
+    public PhysicMaterial track;
     public PhysicMaterial border;
 
-    Dictionary<string,WWW> avatarWww = new Dictionary<string, WWW>();
-    Dictionary<string,Texture2D> avatarWT = new Dictionary<string, Texture2D>();
-    public Texture2D GetAvatar(int avatarId,string avatar)
+    Dictionary<string, WWW> avatarWww = new Dictionary<string, WWW>();
+    Dictionary<string, Texture2D> avatarWT = new Dictionary<string, Texture2D>();
+    public Texture2D GetAvatar(int avatarId, string avatar)
     {
         var def = avatars[Mathf.Clamp(avatarId, 0, avatars.Length)];
         if (avatarId == 0 && !string.IsNullOrEmpty(avatar))
@@ -147,7 +148,7 @@ public class Res :MonoBehaviour
 
     public AudioClip redFlagReturn;
     public AudioClip blueFlagReturn;
-    
+
 
     public AudioClip youLoose;
     public AudioClip youWin;

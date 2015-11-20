@@ -53,7 +53,7 @@ public partial class MpGame : GameBase
         {
             enabled = false;
             return;
-        }   
+        }
         if (_Loader.pursuit)
         {
             _Loader.enableCollision = true;
@@ -62,7 +62,7 @@ public partial class MpGame : GameBase
         matchTimeLimit = _Loader.matchTimeLimit;
         if (_Loader.team)
             ShowWindowNoBack(SelectTeamWindow);
-        
+
         base.Start();
     }
     public string scoreBoard;
@@ -89,7 +89,7 @@ public partial class MpGame : GameBase
             Label("Name");
             for (int i = 0; i < parsed.Count; i++)
                 gui.Label((i + 1) + " " + parsed[i].nick, h);
-            gui.EndVertical();          
+            gui.EndVertical();
         }
         {
             gui.BeginVertical();
@@ -142,7 +142,7 @@ public partial class MpGame : GameBase
             //    CallRPC(EndMatch);
             //}
             GameState gameState = timeCountMatch < 0 ? GameState.finnish : timeCountMatch > _Loader.matchTime ? GameState.none : GameState.started;
-            if (gameState != _Game.gameState )
+            if (gameState != _Game.gameState)
                 CallRPC(SetGameState, (int)gameState);
             if (KeyDebug(KeyCode.F4, "set to 30 seconds"))
                 CallRPC(SetTimeCount, 10f);
@@ -156,7 +156,7 @@ public partial class MpGame : GameBase
         {
             if (!_Game.startedOrFinnished)
             {
-                bool started1 = timeCountRace < 0 || _Loader.dmRace;                
+                bool started1 = timeCountRace < 0 || _Loader.dmRace;
                 if (started1 != _Game.started && started1)
                     _Game.SetStartTrue();
 
@@ -215,8 +215,8 @@ public partial class MpGame : GameBase
                         a.CallRPC(a.SetTeam, (int)(cop ? TeamEnum.Blue : TeamEnum.Red));
                         a.CallRPC(a.Reset);
                         if (cop)
-                            a.CallRPC(a.SetWasCop, a.wasCop +1);
-                        i ++;
+                            a.CallRPC(a.SetWasCop, a.wasCop + 1);
+                        i++;
                     }
             }
             if (win.act == _Game.scoreBoardWindow)
@@ -227,11 +227,11 @@ public partial class MpGame : GameBase
             if (isMaster && redTeam.count > 0 && blueTeam.count > 0)
             {
                 Team t = redTeam.players.All(a => a.dead) ? blueTeam : redTeam;
-                CallRPC(SetTeamScore, (int) t.team, t.score + 1);
+                CallRPC(SetTeamScore, (int)t.team, t.score + 1);
                 //foreach (var a in redTeam.players.Where(a => !a.dead))
                 //    a.CallRPC(a.SetScore2, a.score + 50);
             }
-            
+
             //if (redTeam.players.All(a => a.dead))
             //    winMessage = "Cops Win";
             //else
@@ -249,7 +249,7 @@ public partial class MpGame : GameBase
 
     public override void OnPlConnected()
     {
-        
+
         CallRPC(SetTimeCount, timeCountMatch);
         CallRPC(SetTimeCountRace, timeCountRace);
         if (_Loader.teamOrPursuit)
@@ -276,16 +276,16 @@ public partial class MpGame : GameBase
         print("SetTimeCount");
         var ping = m == null ? 0 : Mathf.Abs((float)(PhotonNetwork.time - m.timestamp));
         print("Set Start Time " + time);
-        timeCountRace= time - ping;
+        timeCountRace = time - ping;
     }
 
     [RPC]
     public void SetTimeCount(float time)
     {
         print("Set Start Time " + time);
-        timeCountMatch = time ;
+        timeCountMatch = time;
     }
-    
+
 #if VOICECHAT
     private IEnumerator InitMicrophone()
     {
@@ -293,7 +293,7 @@ public partial class MpGame : GameBase
             ShowWindowNoBack(_Game.MenuWindow);
         yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
 
-        print("Microphones " + Microphone.devices.Length);
+        Debug.LogWarning("Microphones " + Microphone.devices.Length);
         if (Microphone.devices.Length > 0)
         {
             VoiceChatRecorder v = VoiceChatRecorder.Instance;
@@ -310,14 +310,14 @@ public partial class MpGame : GameBase
         yield return null;
     }
 #endif
-    
+
 
 #if VOICECHAT
     private void VoiceChat(VoiceChatPacket obj)
     {
         _Player.replay.voiceChatTime = Time.realtimeSinceStartup;
         if (!_Loader.banned)
-            _Player.photonView.RPC("SendAudio", PhotonTargets.Others, obj.Data, obj.Length, PhotonNetwork.player.ID);
+            _Player.photonView.RPC("SendAudio", PhotonTargets.All, obj.Data, obj.Length, PhotonNetwork.player.ID);
     }
 #endif
 
@@ -325,7 +325,7 @@ public partial class MpGame : GameBase
     public Team blueTeam { get { return teams[(int)TeamEnum.Blue]; } }
     public Team[] teams;
 
-    
+
 
     internal float timeCountMatch;
     internal float timeCountRace;
@@ -404,6 +404,42 @@ public partial class MpGame : GameBase
                 ShowWindow(BanWindow, win.act);
             else
                 ShowWindow(MuteWindow, win.act);
+        DrawPlayMusicButton();
+        if (Button("Get Map URL"))
+        {
+            string musicUrl = "";
+            ShowWindow(delegate
+            {
+                Label("Current map url:");
+                gui.TextArea(musicUrl);
+                SelectAll(musicUrl.Length);
+
+                _Integration.wallPost(_Loader.record);
+            }, win.act);
+        }
+    }
+
+    private void DrawPlayMusicButton()
+    {
+        if ((Time.time - Music.broadCastTime > 60 && online || isDebug) && Button("Play music"))
+        {
+            string musicUrl = "";
+            ShowWindow(delegate
+            {
+                musicUrl = TextArea("mp3 url:", musicUrl);
+
+                if (Button("Load"))
+                {
+                    if (!musicUrl.ToLower().StartsWith("http"))
+                        Popup("Please enter mp3 link e.g: http://vk.com/music/trackId.mp3", win.act);
+                    else
+                    {
+                        _music.LoadMusic(musicUrl, true);
+                        win.CloseWindow();
+                    }
+                }
+            });
+        }
     }
 
     public string music;

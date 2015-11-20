@@ -62,6 +62,7 @@ public partial class Loader
             print("parsed userId: " + userId);
             bool crypt = false;
             bool ovrd = false;
+            var plnameToLower = playerName;
             if (string.IsNullOrEmpty(w.error))
             {
                 var buffer = w.bytes;
@@ -85,7 +86,7 @@ public partial class Loader
                             if (value.Length > MaxLength || key.Length > MaxLength)
                             {
                                 Debug.LogError(string.Format("too big value {0} {1}", key, value));
-                                continue; 
+                                continue;
                             }
 #if !UNITY_WP8
                             if (crypt)
@@ -100,37 +101,40 @@ public partial class Loader
                                 crypt = true;
                                 continue;
                             }
-                            
+
                             if (key == _DefinePrefsTime && loggedInTime != 0)
                             {
                                 ovrd = loggedInTime < int.Parse(value);
-                                
+
                                 //if (ovrd)
-                                    //lastError = "Override Detected";
-                                LogEvent(EventGroup.Debug,"Override Detected");
+                                //lastError = "Override Detected";
+                                LogEvent(EventGroup.Debug, "Override Detected");
                                 Debug.Log("Set override to: " + ovrd);
                                 ovrd = false;
                                 continue;
                             }
                             i++;
-                            
+
                             //if (!playerPrefKeys.Contains(key)) //may be incorrect
                             //{
 
                             //if (string.IsNullOrEmpty(PlayerPrefsGetString(key)))
-                            if (ovrd || !PlayerPrefs.HasKey(key.ToLower()))
+                            var lowerKey = key.ToLower();
+                            if (ResLoader.isEditor && !lowerKey.StartsWith(plnameToLower)) continue;
+
+                            if (ovrd || !PlayerPrefs.HasKey(lowerKey))
                                 PlayerPrefsSetString(key, value);
                             else
                                 playerPrefKeys.Add(key);
                             //}
                             sb.Append(string.Format("{0}:{1},", key, value));
                         }
-                        
+
                         Debug.LogWarning("loading player prefs local:" + local + " remote:" + i + " \n" + (Debug.isDebugBuild ? sb.ToString() : sb.Length.ToString()));
                         SetStrings.Clear();
                         //statsSaved = true;
                     }
-                else 
+                else
                     Debug.LogWarning("player prefs empty");
                 //}
 
@@ -151,7 +155,8 @@ public partial class Loader
 
             allowSavePrefs = bool.Parse(dict.TryGetDontSet("allowSavePrefs", "true"));
             //}
-        } catch (System.Exception e)
+        }
+        catch (System.Exception e)
         {
             SetStrings.Clear();
             //if (!statsSaved)
@@ -171,7 +176,7 @@ public partial class Loader
     }
     private const string _DefinePrefsTime = "savePrefsTime";
     internal bool allowSavePrefs = true;
-    public IEnumerator SavePlayerPrefs(bool skip=false)
+    public IEnumerator SavePlayerPrefs(bool skip = false)
     {
         if (!allowSavePrefs || setting.disablePlayerPrefs)
             yield break;
@@ -192,22 +197,24 @@ public partial class Loader
             ms.Write(totalSeconds.ToString());
             //#endif
             var forb = new List<string> { "password", "Enc", _DefinePrefsTime };
-            foreach (string Key in playerPrefKeys)
+            var plname = playerName;
+            foreach (string key in playerPrefKeys)
             {
-                if (!forb.Contains(Key))
+                if (!forb.Contains(key))
                 {
-                    var value = PlayerPrefsGetString(Key);
+                    if (ResLoader.isEditor && !key.StartsWith(plname)) continue;
+                    var value = PlayerPrefsGetString(key);
                     //if (Key.EndsWith("reputation"))
-                        //print("reputation:" + value);
+                    //print("reputation:" + value);
                     if (value.Length < 200 && isDebug)
-                        sb.AppendLine(Key + "\t\t" + value);
-                 
-                    if (value.Length > MaxLength || Key.Length > MaxLength)
+                        sb.AppendLine(key + "\t\t" + value);
+
+                    if (value.Length > MaxLength || key.Length > MaxLength)
                     {
-                        Debug.LogError(string.Format("too big value {0} {1}", Key, value));
+                        Debug.LogError(string.Format("too big value {0} {1}", key, value));
                         continue;
                     }
-                    ms.Write(Key);
+                    ms.Write(key);
                     ms.Write(value);
                 }
 
@@ -215,7 +222,7 @@ public partial class Loader
             array = GZipStream.CompressBuffer(ms.ToArray());
             Xor(array);
             print("saving stats_______ :" + ms.Length + " " + array.Length);
-            if(isDebug)
+            if (isDebug)
                 print(sb.ToString());
         }
 
@@ -224,7 +231,7 @@ public partial class Loader
 
         if (act != null)
             win.ShowWindow(act);
-        
+
         if (!w.text.StartsWith("prefs uploaded"))
             Popup(_Loader.lastError = (w.text + w.error), MenuWindow);
     }

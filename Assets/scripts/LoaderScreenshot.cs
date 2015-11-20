@@ -33,7 +33,6 @@ public partial class Loader
     public void TakeScreenshot(bool showText)
     {
         showScreenshotText=showText;
-        
         screenshotTaken = true;
         ExternalCall("Photo");
     }
@@ -62,5 +61,50 @@ public partial class Loader
         if (showScreenshotText)
             centerText(Tr("ScreenshotUploadedText"));
     }
-    
+    protected IEnumerator ParseUrl(string url)
+    {
+        Match m = Regex.Match(url, @".*?load=(.*)");
+        if (m.Success)
+        {
+            var values = m.Groups[1].Value.Split('/');
+            mapName = values[0]; //load=mapname/gametype/roomname
+            yield return StartCoroutine(DownloadUserMaps(0, 0, mapName, 0, false, true));
+            if (values.Length > 2)
+            {
+                SetOffline(false);
+                while (roomInfos.Length == 0)
+                    yield return null;
+                var room = roomInfos.OrderBy(a => a.name == values[2]).FirstOrDefault(a => CustomProperty(a, props.mapname, "") == mapName);
+                if (room == null)
+                {
+                    this.gameType = (GameType)Enum.Parse(typeof(GameType), values[1]);
+                    StartHost();
+                }
+                else
+                    JoinButton(room, true);
+            }
+            else
+                OnMapSelected(curScene);
+        }
+
+        //OnMapSelected(new Scene({}));
+    }
+    public void Url(string s)
+    {
+        print("call from JS Url received " + s);
+        LoadingScreen.SiteBlockCheck(s);
+        urlReceived = true;
+        url = s;
+        StartCoroutine(_Integration.KongParse(s));
+        isOdnoklasniki = url.ToLower().Contains("odnoklassniki.ru");
+        bool isVk = url.ToLower().Contains("vk.com");
+        print("UrlReceived odno " + isOdnoklasniki + " " + url);
+        if (!string.IsNullOrEmpty(url) && (isVk || isOdnoklasniki))
+            curDict = 1;
+        LogEvent(EventGroup.Site, new Uri(s).Host);
+#if old
+        //else
+        StartCoroutine(ParseUrl(url));
+#endif
+    }
 }

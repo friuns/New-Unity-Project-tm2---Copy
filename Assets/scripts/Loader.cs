@@ -1,4 +1,5 @@
 ﻿#define GA
+//#define old
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Net;
@@ -102,11 +103,13 @@ public partial class Loader
         if (Resources.Load("test") != null || setting.dontLoadAssets)
             resLoaded = resLoaded2 = true;
         AudioListener.volume = soundVolume2;
+        _music = GetComponentInChildren<Music>();
         base.Awake();
 
     }
     private IEnumerator LoadAssetBundle(string key)
     {
+        LogEvent(EventGroup.Debug, "Asset Bundle Load Start " + key);
         bool found = false;
         foreach (var a in setting.backups)
         {
@@ -126,8 +129,14 @@ public partial class Loader
                 break;
             }
         }
+
         if (!found)
-            Debug.LogError(key + " missing on server or failed load");
+        {
+            LogEvent(EventGroup.Debug, "Asset Bundle Load Failed " + key);
+            Debug.LogError(key + " missing on server or failed load " + wwwAssetBundle.error);
+        }
+        else
+            LogEvent(EventGroup.Debug, "Asset Bundle Load Loaded " + key);
     }
     IEnumerator LoadAssetBundle()
     {
@@ -176,6 +185,7 @@ public partial class Loader
     }
     public void Start()
     {
+
         //StartCoroutine(StartTest());
         //StartCoroutine(Attack());
         Download(mainSite + "scripts/count.php?platform=" + platformPrefix + "&version=" + setting.version, delegate { }, false);
@@ -231,7 +241,7 @@ public partial class Loader
         //        res.outlines[a.Name] = a.outlineValues;
 
         //if (!isDebug)
-        _music.LoadMusic(Music.music);
+        _music.LoadMusic("");
 
     }
     public void ShowBanner(bool b)
@@ -478,7 +488,8 @@ public partial class Loader
         if (KeyDebug(KeyCode.T))
             StartCoroutine(SavePlayerPrefs(true));
         if (KeyDebug(KeyCode.N))
-            Url("https://vk.com/app3935060?soulkey.stas2001.dasdasdasd.rep.Игорь левочкин");
+            _LoaderScene.StartCoroutine(ParseUrl(""));
+        //Url("https://vk.com/app3935060?soulkey.stas2001.dasdasdasd.rep.Игорь левочкин");
         //Url("odnoklassniki.ru");
         //if (KeyDebug(KeyCode.B, "Load car test"))
         //    print(LoadRes("Cars/angry"));
@@ -567,7 +578,7 @@ public partial class Loader
         guiTextRight.text = sbuilderRight.ToString();
         sbuilderRight = new StringBuilder();
         sbuilder = new StringBuilder();
-        if (flash || android || Nancl || _Loader.levelEditor != null || !vkSite)
+        if (flash || android || Nancl || _Loader.levelEditor != null || !vkSite|| isHttps)
             fullScreen.enabled = false;
         else
         {
@@ -600,24 +611,7 @@ public partial class Loader
     {
         sbuilder2 = new StringBuilder();
     }
-    public void Url(string s)
-    {
-        print("Url received " + s);
-        LoadingScreen.SiteBlockCheck(s);
-        urlReceived = true;
-        url = s;
-        StartCoroutine(_Integration.KongParse(s));
-        isOdnoklasniki = url.ToLower().Contains("odnoklassniki.ru");
-        bool isVk = url.ToLower().Contains("vk.com");
-        print("UrlReceived odno " + isOdnoklasniki + " " + url);
-        if (!string.IsNullOrEmpty(url) && (isVk || isOdnoklasniki))
-            curDict = 1;
-        LogEvent(EventGroup.Site, new Uri(s).Host);
-#if old
-        else
-            StartCoroutine(ParseUrl(url));
-#endif
-    }
+    
     //public void ReplayUrl(string s)
     //{
     //    StartCoroutine(ParseUrl(url));
@@ -755,6 +749,12 @@ public partial class Loader
         SaveStrings();
         loggedInTime = totalSeconds;
         StartCoroutine(AddMethod(FixMedals));
+
+        if (urlReceived && isDebug)
+        {
+            urlReceived = false;
+            _LoaderScene.StartCoroutine(ParseUrl(url));
+        }
     }
     public void FixMedals()
     {
@@ -1138,10 +1138,6 @@ public partial class Loader
             sc.j = Tag.userTab;
             sc.url = a;
             sc.userMap = true;
-            if (sc.name.ToLower().StartsWith("diablo"))
-            {
-                print("Diabllo");
-            }
             sc.rating = float.Parse(a2[1]);
             if (a2.Length > 2)
             {
@@ -1229,6 +1225,7 @@ public partial class Loader
     //        LogRight("________");
     //    }
     //}
+    
 #if old
     protected IEnumerator ParseUrl(string url)
     {
@@ -1250,7 +1247,8 @@ public partial class Loader
                 dict[ss[1].Value] = Uri.UnescapeDataString(ss[3].Value);
             sGameType = SGameType.VsFriends;
             LogEvent("PlayFromUrl");
-        } catch (System.Exception e)
+        }
+        catch (System.Exception e)
         {
             Debug.Log(e);
             WindowPool();

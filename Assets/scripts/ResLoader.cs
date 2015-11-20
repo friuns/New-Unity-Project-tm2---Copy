@@ -136,5 +136,6 @@ public class ResLoader : bs
     public List<string> populartyKeys = new List<string>();
     public List<float> populartyValues = new List<float>();
     public bool oldVer;
+    public static bool isEditor { get { return Application.isEditor; } }
 }
 

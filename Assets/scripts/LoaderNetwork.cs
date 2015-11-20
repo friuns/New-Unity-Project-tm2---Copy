@@ -22,7 +22,7 @@ using Random = UnityEngine.Random;
 
 public partial class Loader
 {
-    private string roomName ;
+    private string roomName;
     public float lifeDef = 300;
     bool havePassword;
     string gamePassword = "";
@@ -34,10 +34,12 @@ public partial class Loader
         for (int i = 0; i < wep.Length; i++)
             weaponEnum = (WeaponEnum)SetFlag((int)weaponEnum, (int)wep[i], Toggle(GetFlag((int)weaponEnum, (int)wep[i]), wep[i].ToString()));
     }
-    private int playerCountGui=20;
+    private int playerCountGui = 20;
+    
     public void HostGameWindow()
     {
-        Setup(600,500);
+        Setup(600, 500);
+        var autoHost = setting.autoHost;
         BeginScrollView();
         Label("Game Name:");
         if (roomName == null)
@@ -47,57 +49,22 @@ public partial class Loader
         Label("Game Type:");
         skin.button.wordWrap = true;
         skin.button.fixedHeight = 50;
-        GameType toolbar = (GameType)Toolbar((int) _Loader.gameType, new[] { "Race", "DeathMatch", null, "Capture The Flag", null, "DeathRace" ,beta? "Pursuit":null},true);
-        if (_Loader.gameType != toolbar)
+        GameType toolbar = (GameType)Toolbar((int)_Loader.gameType, new[] { "Race", "DeathMatch", null, "Capture The Flag", null, "DeathRace", beta ? "Pursuit" : null }, true);
+        if (_Loader.gameType != toolbar && !autoHost)
         {
             _Loader.gameType = toolbar;
             ResetServerSettings();
         }
         skin.button.fixedHeight = 0;
-        if (setting.autoHost)
-        {
-            _Loader.gameType = GameType.pursuit;
-        }
-        if (Button("Start") || setting.autoHost)
-        {
-            Popup("hosting");
-            var ht = new ExitGames.Client.Photon.Hashtable();
-            ht.Add(props.mapname.ToString(), mapName);
-            ht.Add(props.difficulty.ToString(), Difficulty.Normal);
-            ht.Add(props.rain.ToString(), _Loader.rain);
-            ht.Add(props.night.ToString(), _Loader.night);
-            ht.Add(props.topdown.ToString(), false);
-            ht.Add(props.rewinds.ToString(), rewinds);
-            ht.Add(props.wait.ToString(), waitTime);
-            ht.Add(props.dm.ToString(), _Loader.dm);
-            ht.Add(props.version.ToString(), setting.multiplayerVersion);
-            ht.Add(props.life.ToString(), lifeDef);
-            ht.Add(props.wallCollision.ToString(), true);
-            ht.Add(props.gametype.ToString(), (int) _Loader.gameType);
-            ht.Add(props.bombCar.ToString(), bombCar);
-            ht.Add(props.weapons.ToString(), (int)weaponEnum);
-            ht.Add(props.mapId.ToString(), curScene.mapId);
-            ht.Add(props.dmLockForward.ToString(), dmShootForward);
-            ht.Add(props.zombies.ToString(), _Loader.enableZombies);
-            ht.Add(props.enableCollision.ToString(), enableCollision);
-            ht.Add(props.enableMatchTimeLimit.ToString(), enableMatchTime);
-            ht.Add(props.randomSpawn.ToString(),_Loader.ctfRandomSpawn);
-            ht.Add(props.airResistence.ToString(),_Loader.airFactor);
-            ht.Add(props.nitro.ToString(), _Loader.nitro);
-            ht.Add(props.rotationFactor.ToString(), _Loader.rotationFactor);
-            //if (_Loader.speedLimitEnabled)
-                //ht.Add(props.speedLimit, speedLimit);
-            if (havePassword)
-                ht.Add(props.havePassword.ToString(), gamePassword);
-            PhotonNetwork.CreateRoom(roomName, true, true, havePassword ? 100 : playerCountGui, ht, Enum.GetNames(typeof(props)));
-        }
+        if (Button("Start") || autoHost)
+            StartHost();
         GUILayout.BeginHorizontal();
-        
+
         //gameType = Toggle(team || dm, "Battle") || setting.autoHost ? GameType.dm : GameType.race;
         rain = Toggle(rain, "Rain");
         night = Toggle(night, "Night");
         bool toggle = Toggle(havePassword, "Password");
-        if(toggle!=havePassword)
+        if (toggle != havePassword)
             ResetServerSettings();
         havePassword = toggle;
         if (havePassword)
@@ -110,9 +77,9 @@ public partial class Loader
         if (havePassword)
             matchTimeLimit = HorizontalSlider("Match Time Limit", matchTimeLimit / 60, 0, 10) * 60;
 
-        if (_Loader.dmOrPursuit && !curScene.userMap)
+        if ((_Loader.dmOrPursuit || _Loader.dmRace) && !curScene.userMap)
             _Loader.enableZombies = Toggle(_Loader.enableZombies, "Zombies");
-      
+
         if (_Loader.race)
         {
             if (_Loader.medals > 10)
@@ -122,9 +89,9 @@ public partial class Loader
                 waitTime = (int)HorizontalSlider("wait time players on start:", waitTime, 3, 10);
         }
 
-        if(_Loader.dm)
+        if (_Loader.dm)
         {
-            
+
             if (_Loader.ctf)
                 ctfRandomSpawn = Toggle(ctfRandomSpawn, "Random Spawn");
             dmShootForward = Toggle(dmShootForward, "Shoot Forward Only");
@@ -132,7 +99,7 @@ public partial class Loader
             {
                 //if (_Loader.dmOnly)
                 //    enableCollision = Toggle(enableCollision, "EnableCollision");
-                
+
                 //speedLimitEnabled = Toggle(speedLimitEnabled, "Car speed");
                 //if (speedLimitEnabled)
                 //{
@@ -141,7 +108,7 @@ public partial class Loader
                 //}
                 if (Button("Select weapons"))
                     ShowWindow(EnableWeaponWindow, win.act);
-            }            
+            }
         }
         if (_Loader.dmOrPursuit)
         {
@@ -155,8 +122,41 @@ public partial class Loader
         gui.EndHorizontal();
 
         //_Loader.difficulty = (Difficulty)Toolbar((int)_Loader.difficulty, Enum.GetNames(typeof(Difficulty)), true);
-  
+
         gui.EndScrollView();
+    }
+    private void StartHost()
+    {
+        Popup("hosting");
+        var ht = new ExitGames.Client.Photon.Hashtable();
+        ht.Add(props.mapname.ToString(), mapName);
+        ht.Add(props.difficulty.ToString(), Difficulty.Normal);
+        ht.Add(props.rain.ToString(), _Loader.rain);
+        ht.Add(props.night.ToString(), _Loader.night);
+        ht.Add(props.topdown.ToString(), false);
+        ht.Add(props.rewinds.ToString(), rewinds);
+        ht.Add(props.wait.ToString(), waitTime);
+        ht.Add(props.dm.ToString(), _Loader.dm);
+        ht.Add(props.version.ToString(), setting.multiplayerVersion);
+        ht.Add(props.life.ToString(), lifeDef);
+        ht.Add(props.wallCollision.ToString(), true);
+        ht.Add(props.gametype.ToString(), (int)_Loader.gameType);
+        ht.Add(props.bombCar.ToString(), bombCar);
+        ht.Add(props.weapons.ToString(), (int)weaponEnum);
+        ht.Add(props.mapId.ToString(), curScene.mapId);
+        ht.Add(props.dmLockForward.ToString(), dmShootForward);
+        ht.Add(props.zombies.ToString(), _Loader.enableZombies);
+        ht.Add(props.enableCollision.ToString(), enableCollision);
+        ht.Add(props.enableMatchTimeLimit.ToString(), enableMatchTime);
+        ht.Add(props.randomSpawn.ToString(), _Loader.ctfRandomSpawn);
+        ht.Add(props.airResistence.ToString(), _Loader.airFactor);
+        ht.Add(props.nitro.ToString(), _Loader.nitro);
+        ht.Add(props.rotationFactor.ToString(), _Loader.rotationFactor);
+        //if (_Loader.speedLimitEnabled)
+        //ht.Add(props.speedLimit, speedLimit);
+        if (havePassword)
+            ht.Add(props.havePassword.ToString(), gamePassword);
+        PhotonNetwork.CreateRoom(roomName, true, true, havePassword ? 100 : playerCountGui, ht, Enum.GetNames(typeof(props)));
     }
     internal int waitTime = 3;
     internal int rewinds = 3;
@@ -165,11 +165,11 @@ public partial class Loader
     //    if (!online) return;
     //    StartCoroutine(StartLoadLevel(mapName, true));
     //}
-    
+
     private string tableFormat;
     public void QuickConnectWindow()
     {
-        Setup(400,500);
+        Setup(400, 500);
         sGameType = SGameType.Multiplayer;
         if (PhotonNetwork.connectionStateDetailed != PeerState.JoinedLobby)
         {
@@ -189,27 +189,27 @@ public partial class Loader
             JoinButton2(GameType.race, new GUIContent(Tr("User Map"), res.userMap), true);
         JoinButton2(GameType.dm, new GUIContent(Tr("DeathMatch"), res.deathMatch));
         JoinButton2(GameType.ctf, new GUIContent(Tr("Capture The Flag"), res.captureFlag));
-        
+
         //else
         //    JoinButton2(GameType.dmRace, new GUIContent(Tr("Death Race"), res.deathMatch));
-        
-        
+
+
         gui.EndVertical();
         gui.BeginHorizontal();
         if (isDebug && Button("") || setting.autoConnect)
             ShowWindow(MultiplayerWindow);
         if (Button("Server List"))
             ShowWindow(MultiplayerWindow2);
-        if (Button("Host Game")||setting.autoHost)
+        if (Button("Host Game") || setting.autoHost)
             ShowWindowNoBack(SelectMapWindow);
 
         gui.EndHorizontal();
     }
 
-    private void JoinButton2(GameType GameType, GUIContent GuiContent, bool CustomMap=false)
+    private void JoinButton2(GameType GameType, GUIContent GuiContent, bool CustomMap = false)
     {
-        
-        RoomInfo r = FindRoom(GameType,CustomMap);
+
+        RoomInfo r = FindRoom(GameType, CustomMap);
         GUI.enabled = r != null;
         if (gui.Button(GuiContent))
             JoinButton(r, true);
@@ -218,11 +218,11 @@ public partial class Loader
 
     private RoomInfo FindRoom(GameType GameType, bool customMap = false)
     {
-        
+
         var rooms = roomInfos.Where(a =>
             a.maxPlayers - 2 > a.playerCount &&
             string.IsNullOrEmpty(CustomProperty(a, props.havePassword, "")) && CustomProperty(a, props.version, 0) <= setting.multiplayerVersion);
-        
+
         if (!_Loader.resLoaded2)
             rooms = rooms.Where(a => CustomProperty(a, props.mapname, "").Length == 3);
         if (customMap)
@@ -259,7 +259,7 @@ public partial class Loader
         gui.BeginVertical();
         gui.Label(Tr("Map Name"));
         foreach (var a in ar)
-            gui.Label(CustomProperty(a, props.mapname, ""),guiSkins.serverButton,c);
+            gui.Label(CustomProperty(a, props.mapname, ""), guiSkins.serverButton, c);
         gui.EndVertical();
 
         gui.BeginVertical();
@@ -308,7 +308,7 @@ public partial class Loader
     }
     private string mpTitlte = "";
 
-    private void JoinButton(RoomInfo a, bool join=false)
+    private void JoinButton(RoomInfo a, bool join = false)
     {
         var map = CustomProperty(a, props.mapname, "");
         var diff = CustomProperty(a, props.difficulty, Difficulty.Easy);
@@ -323,7 +323,7 @@ public partial class Loader
         var pass = CustomProperty<string>(a, props.havePassword, null);
 
         //var wallColl = CustomProperty(a, props.wallCollision, false);
-        
+
         //Label(table);
         //var s = string.Format(tableFormat, "", map, a.playerCount + "/" + a.maxPlayers, topdown ? "TopDown" : diff != Difficulty.Easy ? diff.ToString() : "", a.name);
         string s = a.name + " " + map;
@@ -341,7 +341,7 @@ public partial class Loader
         else if (bc)
             s += Tr("(BombCar)");
         //if (!wallColl && isDebug)
-            //s += "(Old)";
+        //s += "(Old)";
         if (vrs != setting.multiplayerVersion)
             s += isDebug ? "(v" + vrs + ")" : "-";
         s += " " + a.playerCount + "/" + a.maxPlayers;
@@ -383,20 +383,20 @@ public partial class Loader
                     Popup("Connecting");
                     PhotonNetwork.JoinRoom(a);
                 };
-                if (pass==null)
+                if (pass == null)
                     act();
                 else
                 {
                     ShowWindow(delegate
                     {
                         Label("Enter Password");
-                        gamePassword =gui.TextField(gamePassword);
+                        gamePassword = gui.TextField(gamePassword);
                         if (Button("Ok"))
                             if (pass == gamePassword)
                                 act();
                             else
                                 Popup("Wrong Password");
-                    },win.act);
+                    }, win.act);
                 }
             }
         }
@@ -421,7 +421,7 @@ public partial class Loader
             {
                 //try
                 //{
-                    JoinButton(a);
+                JoinButton(a);
                 //} catch (Exception)
                 //{
                 //    Label(a.name);
@@ -435,8 +435,8 @@ public partial class Loader
     }
     internal int serverVersion { get { return PhotonNetwork.room == null ? setting.version : CustomProperty(PhotonNetwork.room, props.version, 0); } }
     public int maxServerLen = 100;
-    
-    public static T CustomProperty<T>(RoomInfo a, props p, T def = default (T))
+
+    public static T CustomProperty<T>(RoomInfo a, props p, T def = default(T))
     {
         var key = p.ToString();
         if (!a.customProperties.ContainsKey(key))
@@ -462,7 +462,7 @@ public partial class Loader
         PhotonNetwork.isMessageQueueRunning = false;
         StartCoroutine(StartLoadLevel(mapName, true));
     }
-    
+
 }
 
 

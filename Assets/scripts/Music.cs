@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,7 +13,6 @@ public class Music : bs
 
     public override void Awake()
     {
-        _music = this;
         audio = GetComponent<AudioSource>();
     }
     public void Update()
@@ -33,6 +33,7 @@ public class Music : bs
         Debug.LogWarning(s);
         var w = new WWW(s);
         yield return w;
+        if(string.IsNullOrEmpty(w.text))yield break;
         print(w.text);
         w = new WWW(w.text);
         yield return w;
@@ -45,14 +46,14 @@ public class Music : bs
         if (broadcast && _Game && audioClip)
         {
             broadCastTime = Time.time;
-            _GameGui.CallRPC(_GameGui.Chat, _Loader.playerName + " Set music to " + w.text);
-            _GameGui.CallRPCTo(_MpGame.LoadMusic, PhotonTargets.Others, w.text);
+            _GameGui.CallRPC(_GameGui.Chat, _Loader.playerName + " Play music " + Path.GetFileNameWithoutExtension(w.url));
+            _GameGui.CallRPCTo(_MpGame.LoadMusic, PhotonTargets.Others, s);
         }
 
         audio.clip = audioClip;
         audio.Play();
     }
-    public static float broadCastTime = -10;
+    public static float broadCastTime = -600;
 
 
 }

@@ -131,21 +131,7 @@ public partial class MapLoader : GuiClasses
         //if (_Loader.levelEditor != null)
         //    StartCoroutine(_AutoQuality.OnLevelWasLoaded2(0));
         Time.timeScale = 1;
-        if (editor)
-        {
-            foreach (GameObject a in nodes)
-                if (a != null)
-                    a.SetActive(true);
-        }
-        else
-        {
-            nodes.Clear();
-            foreach (var a in GameObject.FindGameObjectsWithTag(Tag.node))
-            {
-                nodes.Add(a);
-                a.SetActive(false);
-            }
-        }
+        ShowNodes(editor);
         OneMesh = !editor;
         if (OneMesh)
         {
@@ -202,6 +188,24 @@ public partial class MapLoader : GuiClasses
         yield return null;
         if (terrain != null)
             terrain.heightmapPixelError = editor ? 1 : 50;
+    }
+    internal void ShowNodes(bool editor)
+    {
+        if (editor)
+        {
+            foreach (GameObject a in nodes)
+                if (a != null)
+                    a.SetActive(true);
+        }
+        else
+        {
+            nodes.Clear();
+            foreach (var a in GameObject.FindGameObjectsWithTag(Tag.node))
+            {
+                nodes.Add(a);
+                a.SetActive(false);
+            }
+        }
     }
     internal bool showTrees;
     private void ClearSbs()
@@ -315,7 +319,7 @@ public partial class MapLoader : GuiClasses
                 {
                     a.gameObject.layer = Layer.terrain;
                     a.gameObject.name = "Terrain";
-                    terrain = a.GetComponent<Terrain>();
+                    //terrain = a.GetComponent<Terrain>();
                 }
                 //else if (a.childCount == 0 && a.collider && (!a.renderer || !a.renderer.enabled) && !a.GetComponent<Terrain>())
                 //    Destroy(a.gameObject);
@@ -343,6 +347,7 @@ public partial class MapLoader : GuiClasses
     {
         mapLoading = true;
         loadMap = null;
+        unityMap = "";
         swirl = 0;
         scale = 1;
         print(mainSite + s);

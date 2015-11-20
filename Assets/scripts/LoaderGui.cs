@@ -421,9 +421,13 @@ public partial class Loader
             ShowWindow(_Awards.DrawAwardsWindow, win.act);
         }
         if (_Integration.site == Site.Kg && Button("Invite Friends"))
+        {
+            FullScreen(false);
             ExternalEval(@"kongregateAPI.getAPI().services.showInvitationBox({  content: 'Come try out this awesome game!'});");
+        }
         if (_Integration.site == Site.VK && Button("Invite Friends"))
         {
+            FullScreen(false);
             ExternalEval("VK.callMethod('showInviteBox')");
         }
         if (isDebug && Button("Edit"))
@@ -685,7 +689,8 @@ public partial class Loader
             prefixMapPl = (scene.name + ";" + _Loader.playerName + ";");
             GUILayout.Label(GUIContent(record == float.MaxValue ? null : TimeToStr(record), place == 4 ? null : win.medals[place]), GUILayout.Height(20), GUILayout.Width(100));
             skin.button.wordWrap = true;
-            var buttonPressed = scene.userMap ? SoundButton(gui.Button(new StringBuilder(Tr("Map by ")).Append(scene.mapBy).Append(scene.played ? "\n(played)" : "").ToString(), GUILayout.Height(100), GUILayout.Width(100)))
+            var buttonPressed = scene.userMap ?
+                DrawUserMapButton(scene)
                 : JoystickButton2(res.mapSelectButton) || SoundButton(GUILayout.Button(GUIContent(unlocked ? scene.texture : win.locked, string.Format(Tr("You need {0} medals to unlock"), Mathf.Max(0, need))), res.mapSelectButton, GUILayout.Height(100), GUILayout.Width(100)))
                 || setting.autoHost && i == 0;
 
@@ -723,6 +728,15 @@ public partial class Loader
         GUILayout.EndScrollView();
 
         DrawMedals();
+
+    }
+    private bool DrawUserMapButton(Scene scene)
+    {
+        if (bs.res.userMapButton == null)
+            bs.res.userMapButton = new GUIStyle(skin.button);
+        var text = new StringBuilder().Append(scene.mapBy).Append(scene.played ? "\n(played)" : "").ToString();
+        return SoundButton(gui.Button(new GUIContent(text, scene.texture), bs.res.userMapButton, GUILayout.Height(100), GUILayout.Width(100)));
+
 
     }
 #if oldFlags
@@ -813,7 +827,6 @@ public partial class Loader
 
     public void DownloadUserMaps2(int page)
     {
-
         StartCoroutine(DownloadUserMaps(topMaps == TopMaps.Staff_Pick ? 2 : 1, (int)mapSets.levelFlags, "", page, topMaps == TopMaps.Top));
     }
     private void DrawTab()
@@ -1265,7 +1278,7 @@ public partial class Loader
             _Game.editControls = true;
             ShowWindowNoBack(_Game.MenuWindow);
         }
-        showYourGhost = Toggle(showYourGhost, "Show your ghost");
+        //showYourGhost = Toggle(showYourGhost, "Show your ghost");
 
         if (android && advancedOptions)
             _Loader.scaleButtons = Toggle(_Loader.scaleButtons, "Scale buttons");
@@ -1411,7 +1424,7 @@ public partial class Loader
 
         gui.EndScrollView();
     }
-    
+
     internal bool tankCheat;
 
 #if old

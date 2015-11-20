@@ -39,7 +39,7 @@ public class Zombie:bsNetwork
         //transform.parent = zombies;
         //model.transform.parent = zombies;
         //model.transform.parent = transform;
-        model.hideFlags = gameObject.hideFlags = HideFlags.HideInHierarchy;
+        //model.hideFlags = gameObject.hideFlags = HideFlags.HideInHierarchy;
         animation = model.GetComponentInChildren<Animator>();
         hips = model.GetComponentsInChildren<Transform>().FirstOrDefault(a => a.tag == "hips");
         rigidbody = model.GetComponentInChildren<Rigidbody>();

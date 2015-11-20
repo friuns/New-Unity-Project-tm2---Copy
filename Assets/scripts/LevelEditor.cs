@@ -157,7 +157,7 @@ public partial class LevelEditor : MapLoader
                 gui.Label(LinkToTutorialUseCtrlCToCopy);
             }, win.act);
 #if UNITY_WEBPLAYER
-            Screen.fullScreen = false;
+            _Loader.FullScreen(false);
             bs.ExternalEval("ShowYoutube()");
 #endif
         }
@@ -165,7 +165,7 @@ public partial class LevelEditor : MapLoader
     private void StartLoadMap()
     {
         Popup("LoadingMap", win.act, null, true);
-        //Clear();
+        //Restart();
         StartCoroutine(LoadMap(loadMap, delegate { Popup2(www.error, OnEditorWindow); }, delegate
         {
             Reset();
@@ -181,10 +181,12 @@ public partial class LevelEditor : MapLoader
         else
             ShowWindowNoBack(OnEditorWindow);
     }
-    private void ClearRestart()
+    private void Clear() { }
+    private void Restart()
     {
         if (start != null)
             DestroyImmediate(start.gameObject);
+        unityMap = "";
         foreach (CurvySpline2 a in splines.ToArray())
             if (!a.shape)
                 DestroyImmediate(a.gameObject);
@@ -708,24 +710,57 @@ public partial class LevelEditor : MapLoader
             cursor.position = GetPoint();
         }
     }
-    public void SaveMapWindow()
+    private Texture2D screenShotIcon;
+    public void ShowSaveMapWindow()
     {
-        if (www == null)
+        WWW www = null;
+        StartCoroutine(AddMethod(new WaitForEndOfFrame(), delegate { screenShotIcon = MakeMapIcon(); }));
+        ShowWindow(delegate
         {
-            Label("Map Name");
-            mapName = Loader.Filter(gui.TextField(mapName, 20));
-            if (Button("Save"))
-                if (mapName.Length < 3)
-                    Popup("Enter Map Name", SaveMapWindow, "Continue");
-                else
-                    StartCoroutine(SaveMap());
-        }
-        else
-        {
-            Label(Trs("Uploading: ") + (int)(www.progress * 100) + "%");
-            if (www.isDone)
-                gui.Label(string.IsNullOrEmpty(www.error) ? www.text : www.error);
-        }
+            if (www == null)
+            {
+                gui.Label(screenShotIcon);
+                Label("Map Name");
+                mapName = Loader.Filter(gui.TextField(mapName, 20));
+                if (Button("Save"))
+                    if (mapName.Length < 3)
+                        Popup("Enter Map Name", win.act, "Continue");
+                    else
+                        StartCoroutine(SaveMap());
+            }
+            else
+            {
+                Label(Trs("Uploading: ") + (int)(www.progress * 100) + "%");
+                if (www.isDone)
+                    gui.Label(string.IsNullOrEmpty(www.error) ? www.text : www.error);
+            }
+        }, win.act);
+
+    }
+    private Texture2D MakeMapIcon()
+    {
+        var resWidth = 128;
+        var resHeight = 128;
+        var camera = Camera.main;
+
+        RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
+        camera.targetTexture = rt;
+        Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false, true);
+        camera.GetComponent<GUILayer>().enabled = false;
+        ShowNodes(false);
+        camera.Render();
+        ShowNodes(true);
+        camera.GetComponent<GUILayer>().enabled = true;
+        RenderTexture.active = rt;
+        if (!isHttps)
+            screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+        camera.targetTexture = null;
+        RenderTexture.active = null; // JC: added to avoid errors
+        //DestroyImmediate(rt);        
+        screenShot.Apply(false);
+
+        return screenShot;
+
     }
     public IEnumerator SaveMap()
     {
@@ -858,13 +893,14 @@ public partial class LevelEditor : MapLoader
                     ms.Write((int)LevelPackets.ClosedSpline);
             }
 
+
             ms.Write((int)LevelPackets.Laps);
             ms.Write(laps);
             if (_Loader.curSceneDef.disableJump)
                 ms.Write((int)LevelPackets.disableJump);
             if (flatTerrain)
                 ms.Write((int)LevelPackets.flatTerrain);
-            www = Download(mainSite + "scripts/sendMap.php", null, true, "name", _Loader.playerNamePrefixed, "map", mapName, "file", ms.ToArray(), "version", setting.levelEditorVersion, "flags", (int)mapSets.levelFlags);
+            www = Download(mainSite + "scripts/sendMap.php", null, true, "name", _Loader.playerNamePrefixed, "map", mapName, "file", ms.ToArray(), "version", setting.levelEditorVersion, "flags", (int)mapSets.levelFlags, "icon", screenShotIcon.EncodeToJPG());
             yield return www;
             www = null;
             myMaps.Add(_Loader.playerNamePrefixed + "." + mapName);
@@ -946,7 +982,7 @@ public partial class LevelEditor : MapLoader
                     //     GameObject.FindGameObjectWithTag(Tag.Start) == null) && !isDebug)
                     //    ShowPopup("Please Add CheckPoints first", OnEditorWindow);
                     //else
-                    ShowWindow(SaveMapWindow, win.act);
+                    ShowSaveMapWindow();
                 }
 
                 if (Button("Load"))
@@ -985,7 +1021,6 @@ public partial class LevelEditor : MapLoader
         ShowWindow(delegate
         {
             BeginScrollView();
-            gui.BeginHorizontal();
             if (Button("video tutorial"))
             {
                 const string link = "https://www.youtube.com/watch?v=ibwtR5CWWjA";
@@ -995,15 +1030,16 @@ public partial class LevelEditor : MapLoader
                     Loader.SelectAll(link.Length);
                     gui.Label(LinkToTutorialUseCtrlCToCopy);
                 }, win.act);
-                Screen.fullScreen = false;
+                _Loader.FullScreen(false);
                 ExternalEval(string.Format("ShowYoutube('{0}','{1}')", link, "http://img.youtube.com/vi/ibwtR5CWWjA/mqdefault.jpg"));
             }
+            gui.BeginHorizontal();
             map = TextArea("Url:", map);
             SelectAll(map.Length);
             if (Button("Load", false))
             {
+                Restart();
                 unityMap = map;
-                ClearRestart();
             }
             gui.EndHorizontal();
             foreach (var a in _Loader.scenes.Where(a => !a.userMap))
@@ -1186,7 +1222,7 @@ public partial class LevelEditor : MapLoader
             if (Button("Clear"))
             {
                 unityMap = "";
-                ClearRestart();
+                Restart();
             }
             if (Button("Reset Camera"))
                 ResetCam();
@@ -1487,7 +1523,9 @@ public partial class LevelEditor : MapLoader
             LoadLevelAdditive(Levels.game);
         else
         {
-            ReEnable();
+            foreach (var a in mbs)
+                if (a != null)
+                    a.SetActive(true);
             _Player.cam.gameObject.SetActive(true);
             _Game.SetStartPoint();
             _Game.ResetCoins();
@@ -1662,12 +1700,6 @@ public partial class LevelEditor : MapLoader
         }
         GL.End();
 
-    }
-    private void ReEnable()
-    {
-        foreach (var a in mbs)
-            if (a != null)
-                a.SetActive(true);
     }
     List<GameObject> mbs = new List<GameObject>();
     private void Disable(Type type)
